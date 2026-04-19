@@ -1,0 +1,59 @@
+name = "cheatsheet"
+name_pretty = "Cheatsheet"
+icon = "help-contents"
+fixed_order = true
+
+[[entries]]
+text = "Super + T"
+subtext = "Abrir Terminal (Kitty)"
+icon = "utilities-terminal"
+
+[[entries]]
+text = "Super + Space"
+subtext = "Menu de Aplicativos (Walker)"
+icon = "system-run"
+
+[[entries]]
+text = "Super + V"
+subtext = "Clipboard History"
+icon = "edit-paste"
+
+[[entries]]
+text = "Super + W"
+subtext = "Fechar Janela"
+icon = "window-close"
+
+[[entries]]
+text = "Super + F1"
+subtext = "Abrir Cheatsheet"
+icon = "help-contents"
+
+[[entries]]
+text = "Super + Ctrl + S"
+subtext = "Screenshot região"
+icon = "camera-photo"
+
+[[entries]]
+text = ";"
+subtext = "Walker — providerlist"
+icon = "view-list"
+
+[[entries]]
+text = ">"
+subtext = "Walker — runner"
+icon = "system-run"
+
+[[entries]]
+text = "/"
+subtext = "Walker — files"
+icon = "folder"
+
+[[entries]]
+text = "="
+subtext = "Walker — calculadora"
+icon = "accessories-calculator"
+
+[[entries]]
+text = ":"
+subtext = "Walker — clipboard"
+icon = "edit-paste"

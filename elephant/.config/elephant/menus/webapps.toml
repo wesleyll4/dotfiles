@@ -1,0 +1,24 @@
+name = "webapps"
+name_pretty = "Web Apps"
+icon = "chromium"
+
+[[entries]]
+text = "Adicionar Webapp"
+icon = "list-add"
+keywords = ["add", "novo", "criar", "webapp"]
+actions = { "add" = "kitty --class floating-webapp -e zsh -c 'echo \"Nome:\"; read NAME; echo \"URL:\"; read URL; ~/.local/bin/webapp \"$NAME\" \"$URL\"; echo \"Criado! Pressione Enter.\"; read'" }
+
+[[entries]]
+text = "Claude"
+icon = "chromium"
+actions = { "open" = "chromium --app=https://claude.ai" }
+
+[[entries]]
+text = "Gemini"
+icon = "chromium"
+actions = { "open" = "chromium --app=https://gemini.google.com" }
+
+[[entries]]
+text = "Grok"
+icon = "chromium"
+actions = { "open" = "chromium --app=https://grok.com" }

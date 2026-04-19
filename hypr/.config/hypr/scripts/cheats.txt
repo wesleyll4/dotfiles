@@ -1,0 +1,40 @@
+GUI DE SOBREVIVÊNCIA WES
+-----------------------------------------------------------
+Super + F1            ➜  Abrir este Guia de Atalhos
+-----------------------------------------------------------
+SISTEMA E APPS
+-----------------------------------------------------------
+Super + T             ➜  Abrir Terminal (Kitty)
+Super + E             ➜  Gerenciador de Arquivos
+Super + Space         ➜  Menu de Aplicativos (Launcher)
+Super + V             ➜  Histórico de Transferência (Clipboard)
+Super + Ctrl + Esc    ➜  Reiniciar Barra de Tarefas (Waybar)
+Super + Ctrl + S      ➜  Print area selecionavel
+
+MANIPULAÇÃO DE JANELAS
+-----------------------------------------------------------
+Super + W             ➜  Fechar Janela Ativa
+Super + Ctrl + V      ➜  Alternar Janela Flutuante
+Super + Setas / HJKL  ➜  Mover Foco entre Janelas
+Super + Shift + Setas ➜  Mover Janela de Posição
+Super + Ctrl + HJKL   ➜  Trocar Janela com Vizinha (Swap)
+
+WORKSPACES (ÁREAS)
+-----------------------------------------------------------
+Super + [0-9]         ➜  Mudar para Área de Trabalho
+Super + Shift + [0-9] ➜  Enviar Janela para Área X
+Super + Scroll Mouse  ➜  Navegar entre Áreas
+Super + S             ➜  Abrir/Fechar Gaveta (Scratchpad)
+
+-----------------------------------------------------------
+WALKER O LAUNCHER
+-----------------------------------------------------------
+Prefix    Provider        Description
+;         providerlist    Switch between providers
+>         runner          Run shell commands
+/         files           Browse files
+.         symbols         Insert special symbols
+!         todo            Manage todo items
+=         calc            Calculator
+@         websearch       Search the web
+:         clipboard       Clipboard history

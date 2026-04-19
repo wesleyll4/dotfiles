@@ -1,0 +1,33 @@
+window {
+    background-color: rgba(13, 17, 23, 0.85);
+    /* backdrop-filter: blur(10px); */
+}
+
+button {
+    background-color: #1a1b26;
+    color: #c0caf5;
+    border: 1px solid #292e42;
+    border-radius: 12px;
+    margin: 8px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 40px;
+    font-size: 13px;
+    font-family: "JetBrains Mono", monospace;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    min-height: 120px;
+}
+
+button:focus,
+button:hover {
+    background-color: #24283b;
+    border: 1px solid #7aa2f7;
+    color: #7aa2f7;
+    box-shadow: 0 0 12px rgba(122, 162, 247, 0.3);
+}
+
+#lock     { background-image: url("/usr/share/wlogout/icons/lock.png"); }
+#logout   { background-image: url("/usr/share/wlogout/icons/logout.png"); }
+#shutdown { background-image: url("/usr/share/wlogout/icons/shutdown.png"); }
+#reboot   { background-image: url("/usr/share/wlogout/icons/reboot.png"); }

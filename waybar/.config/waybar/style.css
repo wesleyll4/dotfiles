@@ -1,0 +1,66 @@
+* {
+    border: none;
+    font-family: "JetBrainsMono Nerd Font", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+}
+
+window#waybar {
+    background: rgba(30, 30, 46, 0.7);
+    color: #cdd6f4;
+    transition-property: background-color;
+    transition-duration: .1s;
+    border-radius: 12px;
+}
+
+#clock,
+#pulseaudio,
+#network,
+#cpu,
+#custom-cheatsheet,
+#memory,
+#battery,
+#tray,
+#custom-clipboard,
+#custom-power {
+    padding: 4px 15px;
+    background-color: #313244;
+    color: #f9e2af; 
+    border-radius: 12px;
+    margin: 4px 2px;
+    font-weight: bold;
+}
+
+#workspaces button.active {
+    color: #f5c2e7;
+    background-color: #45475a;
+}
+
+#clock {
+    color: #fab387;
+    font-weight: bold;
+}
+
+#pulseaudio {
+    color: #89b4fa;
+}
+
+#network {
+    color: #a6e3a1;
+}
+
+
+#custom-launcher {
+    font-size: 20px;
+    color: #1793d1; /* Azul Arch */
+    background-color: rgba(23, 147, 209, 0.15); /* Fundo azul bem suave */
+    border-radius: 8px;
+    padding: 0px 12px;
+    margin: 4px 6px;
+    border: 1px solid rgba(23, 147, 209, 0.3);
+    transition: all 0.3s ease;
+}
+
+#custom-launcher:hover {
+    background-color: #1793d1; /* Fica azul sólido no hover */
+    color: #ffffff; /* Ícone fica branco */
+}

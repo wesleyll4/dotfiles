@@ -1,0 +1,94 @@
+{
+  "layer": "top",
+  "position": "top",
+  "margin-top": 0,
+  "margin-left": 10,
+  "margin-right": 10,
+  "spacing": 4,
+
+  "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/cheatsheet", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "custom/clipboard",
+    "pulseaudio",
+    "network",
+    "cpu",
+    "memory",
+    "tray",
+    "custom/power",
+  ],
+
+  "hyprland/workspaces": { 
+    "format": "{name}", // Isso garante que o número apareça
+    "on-click": "activate",
+    "all-outputs": true,
+    "sort-by-number": true,
+    "persistent-workspaces": {
+      "*": 5 // Mantém os números de 1 a 5 sempre visíveis, se desejar
+    }
+  },
+
+  "clock": {
+    "format": "{:%d/%m %H:%M}",
+    "format-alt": "{:%A, %d %B %Y}",
+    "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
+    "calendar": {
+        "mode": "month",
+        "on-scroll": 1,
+        "format": {
+            "today": "<span color='#7aa2f7'><b>{}</b></span>"
+        }
+    }
+  },
+
+  "memory": {
+    "interval": 10,
+    "format": " {used:0.1f}GB/{total:0.1f}GB",
+    "tooltip": true,
+    "tooltip-format": "Memória em uso: {percentage}%"
+  },
+
+  "custom/power": {
+    "format": "⏻",
+    "on-click": "wlogout -b 4 -m 500 -c 15 -r 15",
+    "tooltip": false
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-icons": {
+        "default": ["", "", ""]
+    },
+    "on-click": "walker --provider wireplumber",
+  },
+
+  "network": {
+    "interface": "enp110s0", // Força a placa correta
+    "format-wifi": "  {essid}",
+    "format-ethernet": "󰈀  {ipaddr}", // Ícone de cabo para sua enp110s0
+    "format-linked": "󰈀  {ifname} (No IP)",
+    "format-disconnected": "⚠  Disconnected",
+    "tooltip-format": "{ifname} via {gwaddr} ",
+    "on-click": "hyprctl dispatch exec '[float; size 400 600; move (monitor_w*0.79) (monitor_h*0.05)] kitty -e nmtui'"
+  },
+
+  "custom/clipboard": {
+    "format": "󰅌",
+    "on-click": "walker --provider clipboard"
+  },
+
+  "custom/cheatsheet": {
+    "format": " 󱓞 ",
+    "tooltip": false,
+    // "on-click": "hyprctl dispatch exec '[float; size 600 800] yad --text-info --filename=\"$HOME/.config/hypr/scripts/cheats.txt\" --title=\"Guia de Sobrevivência\" --width=600 --height=500 --button=\"Fechar:0\"'",
+    "on-click": "kitty --class cheatsheet -e zsh -c 'bat ~/.config/hypr/scripts/cheats.txt; read'"
+  },
+
+  "custom/launcher": {
+    // "format": "  ",
+    "format": "󰣇", // Ícone clássico do Arch
+    "on-click": "walker --provider desktopapplications",
+    "tooltip": false
+},
+
+}
