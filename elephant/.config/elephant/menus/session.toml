@@ -1,0 +1,28 @@
+name = "session"
+name_pretty = "Session"
+icon = "system-shutdown"
+fixed_order = true
+
+[[entries]]
+text = "Lock"
+icon = "system-lock-screen"
+keywords = ["lock", "travar"]
+actions = { "lock" = "hyprlock" }
+
+[[entries]]
+text = "Logout"
+icon = "system-log-out"
+keywords = ["logout", "sair"]
+actions = { "logout" = "hyprctl dispatch exit" }
+
+[[entries]]
+text = "Shutdown"
+icon = "system-shutdown"
+keywords = ["shutdown", "desligar"]
+actions = { "shutdown" = "systemctl poweroff" }
+
+[[entries]]
+text = "Reboot"
+icon = "system-reboot"
+keywords = ["reboot", "reiniciar"]
+actions = { "reboot" = "systemctl reboot" }

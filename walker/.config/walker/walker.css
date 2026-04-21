@@ -1,0 +1,42 @@
+/* Estilo para a janela principal */
+#window {
+  background-color: alpha(@background, 0.95);
+  border: 2px solid @selected-text;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+/* Esconde a barra de busca se estiver vazia (estilo clean) */
+#search {
+  background-color: alpha(@foreground, 0.05);
+  border: none;
+  border-radius: 8px;
+  color: @text;
+  margin-bottom: 10px;
+  padding: 8px;
+}
+
+/* Estilo de cada item da lista (Lock, Logout, etc) */
+#entry {
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* Quando você passa o teclado por cima */
+#entry:selected {
+  background-color: alpha(@selected-text, 0.2);
+  border-left: 4px solid @selected-text;
+}
+
+/* Texto principal do item */
+#label {
+  color: @text;
+  font-weight: bold;
+}
+
+/* Remove ou estiliza os badges (F1, F2...) que você não gostou */
+#shortcut {
+  color: alpha(@text, 0.4);
+  background-color: transparent;
+  font-size: 0.8rem;
+}

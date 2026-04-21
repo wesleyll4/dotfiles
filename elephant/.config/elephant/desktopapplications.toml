@@ -1,15 +1,5 @@
 action_min_score = 20
-blacklist = [
-  'bssh|bvnc|avahi',      # avahi stuff
-  'yad-',                  # tudo do yad
-  'qv4l2|qvidcap',        # qt v4l2
-  'xgps',                  # gps
-  'rofi',                  # rofi (já que usa walker)
-  'uuctl|htop|vim\.desktop',
-  'networkmanager_dmenu',
-  'nm-connection-editor',
-  'vim'
-]
+blacklist = ['bssh|bvnc|avahi', 'yad-', 'qv4l2|qvidcap', 'xgps', 'rofi', 'uuctl|htop|vim\.desktop', 'networkmanager_dmenu', 'nm-connection-editor', 'vim']
 history = true
 history_when_empty = false
 icon_placeholder = 'applications-other'

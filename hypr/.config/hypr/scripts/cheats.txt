@@ -38,3 +38,5 @@ Prefix    Provider        Description
 =         calc            Calculator
 @         websearch       Search the web
 :         clipboard       Clipboard history
+$         Open Apps       Open Apps
+;         cheatsheet      Walker Helper
