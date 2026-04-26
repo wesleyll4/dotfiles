@@ -80,8 +80,7 @@
   "custom/cheatsheet": {
     "format": " 󱓞 ",
     "tooltip": false,
-    // "on-click": "hyprctl dispatch exec '[float; size 600 800] yad --text-info --filename=\"$HOME/.config/hypr/scripts/cheats.txt\" --title=\"Guia de Sobrevivência\" --width=600 --height=500 --button=\"Fechar:0\"'",
-    "on-click": "kitty --class cheatsheet -e zsh -c 'bat ~/.config/hypr/scripts/cheats.txt; read'"
+    "on-click": "walker -m menus:cheatsheet"
   },
 
   "custom/launcher": {

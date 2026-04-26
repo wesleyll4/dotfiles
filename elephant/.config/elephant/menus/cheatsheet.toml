@@ -7,53 +7,134 @@ fixed_order = true
 text = "Super + T"
 subtext = "Abrir Terminal (Kitty)"
 icon = "utilities-terminal"
+actions = { "open" = "kitty" }
+
+[[entries]]
+text = "Super + E"
+subtext = "Gerenciador de Arquivos (Dolphin)"
+icon = "system-file-manager"
+actions = { "open" = "dolphin" }
 
 [[entries]]
 text = "Super + Space"
 subtext = "Menu de Aplicativos (Walker)"
 icon = "system-run"
+actions = { "open" = "walker" }
 
 [[entries]]
 text = "Super + V"
 subtext = "Clipboard History"
 icon = "edit-paste"
-
-[[entries]]
-text = "Super + W"
-subtext = "Fechar Janela"
-icon = "window-close"
-
-[[entries]]
-text = "Super + F1"
-subtext = "Abrir Cheatsheet"
-icon = "help-contents"
+actions = { "open" = "walker -m clipboard" }
 
 [[entries]]
 text = "Super + Ctrl + S"
 subtext = "Screenshot região"
 icon = "camera-photo"
+actions = { "open" = "~/.config/hypr/scripts/screenshot-region.sh" }
+
+[[entries]]
+text = "Super + W"
+subtext = "Fechar Janela Ativa"
+icon = "window-close"
+
+[[entries]]
+text = "Super + Ctrl + V"
+subtext = "Alternar Janela Flutuante"
+icon = "window-restore"
+
+[[entries]]
+text = "Super + Setas / HJKL"
+subtext = "Mover Foco entre Janelas"
+icon = "input-keyboard"
+
+[[entries]]
+text = "Super + Shift + Setas"
+subtext = "Mover Janela de Posição"
+icon = "input-keyboard"
+
+[[entries]]
+text = "Super + Ctrl + HJKL"
+subtext = "Trocar Janela com Vizinha (Swap)"
+icon = "input-keyboard"
+
+[[entries]]
+text = "Super + [0-9]"
+subtext = "Mudar para Área de Trabalho"
+icon = "workspace-switcher"
+
+[[entries]]
+text = "Super + Shift + [0-9]"
+subtext = "Enviar Janela para Área X"
+icon = "workspace-switcher"
+
+[[entries]]
+text = "Super + S"
+subtext = "Abrir/Fechar Scratchpad"
+icon = "view-restore"
+
+[[entries]]
+text = "Super + Escape"
+subtext = "Session (Lock, Logout, Shutdown, Reboot)"
+icon = "system-shutdown"
+actions = { "open" = "walker -m menus:session" }
+
+[[entries]]
+text = "Super + F1"
+subtext = "Abrir Cheatsheet"
+icon = "help-contents"
+actions = { "open" = "walker -m menus:cheatsheet" }
 
 [[entries]]
 text = ";"
 subtext = "Walker — providerlist"
 icon = "view-list"
+actions = { "open" = "walker -m providerlist" }
 
 [[entries]]
 text = ">"
 subtext = "Walker — runner"
 icon = "system-run"
+actions = { "open" = "walker -m runner" }
 
 [[entries]]
 text = "/"
 subtext = "Walker — files"
 icon = "folder"
+actions = { "open" = "walker -m files" }
+
+[[entries]]
+text = "."
+subtext = "Walker — symbols"
+icon = "accessories-character-map"
+actions = { "open" = "walker -m symbols" }
+
+[[entries]]
+text = "!"
+subtext = "Walker — todo"
+icon = "task-due"
+actions = { "open" = "walker -m todo" }
 
 [[entries]]
 text = "="
 subtext = "Walker — calculadora"
 icon = "accessories-calculator"
+actions = { "open" = "walker -m calc" }
+
+[[entries]]
+text = "@"
+subtext = "Walker — websearch"
+icon = "web-browser"
+actions = { "open" = "walker -m websearch" }
 
 [[entries]]
 text = ":"
 subtext = "Walker — clipboard"
 icon = "edit-paste"
+actions = { "open" = "walker -m clipboard" }
+
+[[entries]]
+text = "$"
+subtext = "Walker — janelas abertas"
+icon = "window-new"
+actions = { "open" = "walker -m windows" }
