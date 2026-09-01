@@ -30,9 +30,14 @@ for path in \
     ansible/roles/desktop_hyprland/tasks/stage.yml \
     ansible/roles/desktop_session_current/defaults/main.yml \
     ansible/roles/desktop_session_current/tasks/main.yml \
+    ansible/roles/desktop_shell_current/defaults/main.yml \
+    ansible/roles/desktop_shell_current/tasks/main.yml \
+    ansible/roles/desktop_actions_current/defaults/main.yml \
+    ansible/roles/desktop_actions_current/tasks/main.yml \
     ansible/inventories/local/host_vars/main_desktop.yml \
     tests/fixtures/stage-hyprland-candidate.yml \
     tests/fixtures/stage-session-candidate.yml \
+    tests/fixtures/stage-shell-actions-candidates.yml \
     docs/decisions/current-tools.md \
     docs/decisions/development-and-gaming-scope.md \
     docs/package-inventory-arch.md \

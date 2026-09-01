@@ -1,0 +1,20 @@
+---
+- name: Assert current shell candidate exists
+  ansible.builtin.assert:
+    that:
+      - desktop_shell_current_candidate_root is directory
+      - (desktop_shell_current_candidate_root + '/shell.lua') is file
+    fail_msg: current shell candidate is incomplete
+
+- name: Assert shell package boundary remains empty
+  ansible.builtin.assert:
+    that:
+      - desktop_shell_current_packages is sequence
+      - desktop_shell_current_packages | length == 0
+
+- name: Assert shell provider owns only shell/UI actions
+  ansible.builtin.assert:
+    that:
+      - lookup('ansible.builtin.file', desktop_shell_current_candidate_root + '/shell.lua') is search('waybar')
+      - lookup('ansible.builtin.file', desktop_shell_current_candidate_root + '/shell.lua') is search('walker')
+      - lookup('ansible.builtin.file', desktop_shell_current_candidate_root + '/shell.lua') is not search('hyprlock|hypridle|kitty|dolphin|chromium')

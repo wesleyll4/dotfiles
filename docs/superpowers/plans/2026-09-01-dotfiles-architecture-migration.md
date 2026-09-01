@@ -413,11 +413,11 @@ real runtime directory; migration is performed entry-by-entry.
 - Modify: ansible/profiles/desktop.yml
 - Modify: tests/config-test.sh
 
-- [ ] Copy UI configs/scripts to candidates while retaining old source paths.
-- [ ] shell.lua owns current Waybar/Walker/Elephant/AGS, launcher, clipboard, menus, and Walker power/session behavior.
-- [ ] apps.lua owns terminal, browser, file-manager, screenshot actions and binds. Their current commands are profile policy vars.
-- [ ] Test each action has exactly one owner and core has none.
-- [ ] Commit: feat: stage current shell and actions candidates.
+- [x] Copy UI configs/scripts to candidates while retaining old source paths.
+- [x] shell.lua owns current Waybar/Walker/Elephant/AGS, launcher, clipboard, menus, and Walker power/session behavior.
+- [x] apps.lua owns terminal, browser, file-manager, screenshot actions and binds. Their current commands are profile policy vars.
+- [x] Test each action has exactly one owner and core has none.
+- [x] Commit: feat: stage current shell and actions candidates.
 
 **Validation:** no live configuration target changes.
 

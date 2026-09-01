@@ -1,0 +1,11 @@
+---
+- name: Validate current shell and actions candidates
+  hosts: local
+  gather_facts: false
+  tasks:
+    - name: Run current shell candidate role
+      ansible.builtin.include_role:
+        name: desktop_shell_current
+    - name: Run current actions candidate role
+      ansible.builtin.include_role:
+        name: desktop_actions_current

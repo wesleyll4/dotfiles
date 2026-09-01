@@ -1,0 +1,21 @@
+---
+- name: Assert current application-actions candidate exists
+  ansible.builtin.assert:
+    that:
+      - desktop_actions_current_candidate_root is directory
+      - (desktop_actions_current_candidate_root + '/apps.lua') is file
+    fail_msg: current application-actions candidate is incomplete
+
+- name: Assert application-actions package boundary remains empty
+  ansible.builtin.assert:
+    that:
+      - desktop_actions_current_packages is sequence
+      - desktop_actions_current_packages | length == 0
+
+- name: Assert application-actions ownership is limited to apps and screenshot
+  ansible.builtin.assert:
+    that:
+      - lookup('ansible.builtin.file', desktop_actions_current_candidate_root + '/apps.lua') is search('kitty')
+      - lookup('ansible.builtin.file', desktop_actions_current_candidate_root + '/apps.lua') is search('dolphin')
+      - lookup('ansible.builtin.file', desktop_actions_current_candidate_root + '/apps.lua') is search('chromium')
+      - lookup('ansible.builtin.file', desktop_actions_current_candidate_root + '/apps.lua') is not search('waybar|walker|hyprlock|hypridle')

@@ -90,6 +90,21 @@ verify_config() {
 
 verify_config desktop "$desktop_config"
 verify_config candidate "$candidate_config"
+
+complete_candidate="$tmp_root/complete-candidate"
+cp -a "$repo_root/config/user/hypr/candidate/." "$complete_candidate"
+cp "$repo_root/config/user/hypr/candidate/session/current/session.lua" "$complete_candidate/integrations/session.lua"
+cp "$repo_root/config/user/hypr/candidate/shell/current/shell.lua" "$complete_candidate/integrations/shell.lua"
+cp "$repo_root/config/user/hypr/candidate/actions/current/apps.lua" "$complete_candidate/integrations/apps.lua"
+verify_config complete "$complete_candidate/hyprland.lua"
+
+grep -F 'SUPER + T' "$complete_candidate/integrations/apps.lua" >/dev/null
+grep -F 'SUPER + E' "$complete_candidate/integrations/apps.lua" >/dev/null
+grep -F 'SUPER + B' "$complete_candidate/integrations/apps.lua" >/dev/null
+grep -F 'SUPER + CTRL + S' "$complete_candidate/integrations/apps.lua" >/dev/null
+! grep -E -i 'kitty|dolphin|chromium|screenshot' "$complete_candidate/integrations/shell.lua"
+! grep -E -i 'hyprlock|hypridle' "$complete_candidate/integrations/shell.lua"
+! grep -E -i 'waybar|walker|menus|clipboard' "$complete_candidate/integrations/apps.lua"
 verify_config greeter "$greeter_config"
 
 for forbidden in Waybar Walker Hyprlock Hypridle Kitty Dolphin Chromium; do

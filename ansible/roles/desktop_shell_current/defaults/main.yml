@@ -1,0 +1,3 @@
+---
+desktop_shell_current_candidate_root: "{{ dotfiles_root }}/config/user/hypr/candidate/shell/current"
+desktop_shell_current_packages: []
