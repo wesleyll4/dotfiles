@@ -238,12 +238,14 @@ managed_link_target: /absolute/runtime/target
 - Create: ansible/roles/cli_tools/defaults/main.yml
 - Create: ansible/roles/cli_tools/tasks/main.yml
 - Modify: tests/config-link-test.sh
+- Create: tests/fixtures/cli-tools-link-adoption.yml
+- Modify: tests/ansible-structure-test.sh
 
-- [ ] Copy current source files with cp -a; compare staged/new content with old source.
-- [ ] Keep old starship, mise, yazi source paths valid.
-- [ ] Add only fixture mappings with expected new sources and explicit legacy paths.
-- [ ] Validate fixture twice without real HOME.
-- [ ] Commit: feat: stage CLI tool config sources.
+- [x] Copy current source files with cp -a; compare staged/new content with old source.
+- [x] Keep old starship, mise, yazi source paths valid.
+- [x] Add only fixture mappings with expected new sources and explicit legacy paths.
+- [x] Validate fixture twice without real HOME.
+- [x] Commit: feat: stage CLI tool config sources.
 
 **Validation:** byte comparisons and fixture idempotence pass.
 

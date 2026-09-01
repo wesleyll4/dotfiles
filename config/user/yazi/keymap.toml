@@ -1,0 +1,8 @@
+[manager]
+keymap = [
+    { on = "<Enter>", run = "enter", desc = "Enter directory" },
+    { on = "<Esc>", run = "escape", desc = "Exit visual mode, clear selected" },
+    { on = "q", run = "quit", desc = "Quit" },
+    { on = "l", run = ["enter", "open"], desc = "Enter or open" },
+]
+

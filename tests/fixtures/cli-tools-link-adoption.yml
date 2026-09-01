@@ -1,0 +1,22 @@
+---
+- name: Exercise staged CLI-tool link adoption
+  hosts: local
+  gather_facts: false
+  vars:
+    cli_tools_link_mappings:
+      - target: "{{ dotfiles_home }}/.config/starship.toml"
+        expected_source: "{{ dotfiles_root }}/config/user/starship/starship.toml"
+        legacy_sources:
+          - "{{ dotfiles_root }}/starship/.config/starship.toml"
+      - target: "{{ dotfiles_home }}/.config/mise/config.toml"
+        expected_source: "{{ dotfiles_root }}/config/user/mise/config.toml"
+        legacy_sources:
+          - "{{ dotfiles_root }}/mise/.config/mise/config.toml"
+      - target: "{{ dotfiles_home }}/.config/yazi/keymap.toml"
+        expected_source: "{{ dotfiles_root }}/config/user/yazi/keymap.toml"
+        legacy_sources:
+          - "{{ dotfiles_root }}/yazi/.config/yazi/keymap.toml"
+  tasks:
+    - name: Apply staged CLI-tool mappings
+      ansible.builtin.include_role:
+        name: cli_tools

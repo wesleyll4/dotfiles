@@ -1,0 +1,28 @@
+---
+- name: Assert CLI-tool link mappings are a list
+  ansible.builtin.assert:
+    that:
+      - cli_tools_link_mappings is sequence
+      - cli_tools_link_mappings is not string
+    fail_msg: cli_tools_link_mappings must be a list
+
+- name: Assert each CLI-tool link mapping is complete
+  ansible.builtin.assert:
+    that:
+      - item.target is defined
+      - item.expected_source is defined
+      - item.legacy_sources is defined
+      - item.legacy_sources is sequence
+      - item.legacy_sources is not string
+    fail_msg: each CLI-tool mapping requires target, expected_source, and legacy_sources
+  loop: "{{ cli_tools_link_mappings }}"
+
+- name: Adopt staged CLI-tool links conservatively
+  ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
+  loop: "{{ cli_tools_link_mappings }}"
+  loop_control:
+    loop_var: cli_tool_link
+  vars:
+    managed_link_target: "{{ cli_tool_link.target }}"
+    managed_link_expected_source: "{{ cli_tool_link.expected_source }}"
+    managed_link_legacy_sources: "{{ cli_tool_link.legacy_sources }}"

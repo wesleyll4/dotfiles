@@ -117,4 +117,25 @@ if run_adoption "$escaped_target" "$expected" "[$legacy_one, $legacy_two]"; then
 fi
 [[ ! -e "$escaped_target" && ! -L "$escaped_target" ]]
 
+cli_home="$fixture/cli-home"
+mkdir -p "$cli_home/.config/mise" "$cli_home/.config/yazi"
+ln -s -- "$root/starship/.config/starship.toml" "$cli_home/.config/starship.toml"
+ln -s -- "$root/mise/.config/mise/config.toml" "$cli_home/.config/mise/config.toml"
+ln -s -- "$root/yazi/.config/yazi/keymap.toml" "$cli_home/.config/yazi/keymap.toml"
+
+run_cli_fixture() {
+    ANSIBLE_CONFIG="$root/ansible/ansible.cfg" \
+        ansible-playbook "$root/tests/fixtures/cli-tools-link-adoption.yml" \
+        -e "dotfiles_root=$root" \
+        -e "dotfiles_home=$cli_home"
+}
+
+run_cli_fixture
+assert_link_target "$cli_home/.config/starship.toml" "$root/config/user/starship/starship.toml"
+assert_link_target "$cli_home/.config/mise/config.toml" "$root/config/user/mise/config.toml"
+assert_link_target "$cli_home/.config/yazi/keymap.toml" "$root/config/user/yazi/keymap.toml"
+
+cli_second_run=$(run_cli_fixture)
+grep -F 'changed=0' <<<"$cli_second_run" >/dev/null
+
 printf 'managed link adoption: ok\n'
