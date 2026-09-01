@@ -4,6 +4,9 @@ profile_roles:
   - cli_tools
   - shell_zsh
   - terminal_kitty
+  - desktop_session_current
+  - desktop_shell_current
+  - desktop_actions_current
 
 cli_tools_link_mappings:
   - target: "{{ dotfiles_home }}/.config/starship.toml"
@@ -34,3 +37,55 @@ terminal_kitty_entries:
   - name: kitty.conf.bak
     expected_source: "{{ dotfiles_root }}/config/user/kitty/kitty.conf.bak"
     legacy_sources: []
+
+desktop_session_current_link_mappings:
+  - target: "{{ dotfiles_home }}/.config/hypr/hypridle.conf"
+    expected_source: "{{ dotfiles_root }}/config/user/hypr/candidate/session/current/hypridle.conf"
+    legacy_sources:
+      - "{{ dotfiles_root }}/hypr/.config/hypr/hypridle.conf"
+  - target: "{{ dotfiles_home }}/.config/hypr/hyprlock.conf"
+    expected_source: "{{ dotfiles_root }}/config/user/hypr/candidate/session/current/hyprlock.conf"
+    legacy_sources:
+      - "{{ dotfiles_root }}/hypr/.config/hypr/hyprlock.conf"
+
+desktop_actions_current_link_mappings:
+  - target: "{{ dotfiles_home }}/.config/hypr/scripts"
+    expected_source: "{{ dotfiles_root }}/config/user/hypr/candidate/actions/current/scripts"
+    legacy_sources:
+      - "{{ dotfiles_root }}/hypr/.config/hypr/scripts"
+
+desktop_shell_current_link_mappings:
+  - target: "{{ dotfiles_home }}/.config/walker"
+    expected_source: "{{ dotfiles_root }}/config/user/desktop-shell/current/walker"
+    legacy_sources:
+      - "{{ dotfiles_root }}/walker/.config/walker"
+  - target: "{{ dotfiles_home }}/.config/elephant/menus"
+    expected_source: "{{ dotfiles_root }}/config/user/desktop-shell/current/elephant/menus"
+    legacy_sources:
+      - "{{ dotfiles_root }}/elephant/.config/elephant/menus"
+
+desktop_shell_current_directory_entries:
+  - target: "{{ dotfiles_home }}/.config/waybar/config.jsonc"
+    expected_source: "{{ dotfiles_root }}/config/user/desktop-shell/current/waybar/config.jsonc"
+    legacy_source: "{{ dotfiles_root }}/waybar/.config/waybar/config.jsonc"
+  - target: "{{ dotfiles_home }}/.config/waybar/config.jsonc.bkp"
+    expected_source: "{{ dotfiles_root }}/config/user/desktop-shell/current/waybar/config.jsonc.bkp"
+    legacy_source: "{{ dotfiles_root }}/waybar/.config/waybar/config.jsonc.bkp"
+  - target: "{{ dotfiles_home }}/.config/waybar/style.css"
+    expected_source: "{{ dotfiles_root }}/config/user/desktop-shell/current/waybar/style.css"
+    legacy_source: "{{ dotfiles_root }}/waybar/.config/waybar/style.css"
+  - target: "{{ dotfiles_home }}/.config/waybar/style.css.bkp"
+    expected_source: "{{ dotfiles_root }}/config/user/desktop-shell/current/waybar/style.css.bkp"
+    legacy_source: "{{ dotfiles_root }}/waybar/.config/waybar/style.css.bkp"
+  - target: "{{ dotfiles_home }}/.config/elephant/desktopapplications.toml"
+    expected_source: "{{ dotfiles_root }}/config/user/desktop-shell/current/elephant/desktopapplications.toml"
+    legacy_source: "{{ dotfiles_root }}/elephant/.config/elephant/desktopapplications.toml"
+
+desktop_shell_current_expected_waybar_entries:
+  - config.jsonc
+  - config.jsonc.bkp
+  - style.css
+  - style.css.bkp
+desktop_shell_current_expected_elephant_entries:
+  - desktopapplications.toml
+  - menus

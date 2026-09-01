@@ -10,6 +10,10 @@
       - managed_link_target is match('^/')
     fail_msg: managed-link paths must be absolute and legacy sources must be a list
 
+- name: Reset per-link legacy adoption state
+  ansible.builtin.set_fact:
+    managed_link_recorded_legacy_source: null
+
 - name: Resolve dotfiles root canonically
   ansible.builtin.command:
     argv:
@@ -120,7 +124,7 @@
   ansible.builtin.file:
     path: "{{ managed_link_target }}"
     state: absent
-  when: managed_link_recorded_legacy_source is defined
+  when: managed_link_recorded_legacy_source is not none
 
 - name: Create expected managed-link target
   ansible.builtin.file:
@@ -131,4 +135,4 @@
   when: >-
     (not (managed_link_target_state.stat.exists | default(false)) and
      not (managed_link_target_state.stat.islnk | default(false))) or
-    managed_link_recorded_legacy_source is defined
+    managed_link_recorded_legacy_source is not none

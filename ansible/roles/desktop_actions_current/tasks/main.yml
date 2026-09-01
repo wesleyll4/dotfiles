@@ -19,3 +19,13 @@
       - lookup('ansible.builtin.file', desktop_actions_current_candidate_root + '/apps.lua') is search('dolphin')
       - lookup('ansible.builtin.file', desktop_actions_current_candidate_root + '/apps.lua') is search('chromium')
       - lookup('ansible.builtin.file', desktop_actions_current_candidate_root + '/apps.lua') is not search('waybar|walker|hyprlock|hypridle')
+
+- name: Adopt current action runtime links
+  ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
+  loop: "{{ desktop_actions_current_link_mappings }}"
+  loop_control:
+    loop_var: action_link
+  vars:
+    managed_link_target: "{{ action_link.target }}"
+    managed_link_expected_source: "{{ action_link.expected_source }}"
+    managed_link_legacy_sources: "{{ action_link.legacy_sources }}"

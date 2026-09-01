@@ -18,3 +18,99 @@
       - lookup('ansible.builtin.file', desktop_shell_current_candidate_root + '/shell.lua') is search('waybar')
       - lookup('ansible.builtin.file', desktop_shell_current_candidate_root + '/shell.lua') is search('walker')
       - lookup('ansible.builtin.file', desktop_shell_current_candidate_root + '/shell.lua') is not search('hyprlock|hypridle|kitty|dolphin|chromium')
+
+- name: Inventory Waybar directory entries without following them
+  ansible.builtin.command:
+    argv:
+      - find
+      - "{{ dotfiles_home }}/.config/waybar"
+      - -mindepth
+      - '1'
+      - -maxdepth
+      - '1'
+      - -printf
+      - '%f\n'
+  register: desktop_shell_current_waybar_inventory
+  changed_when: false
+  check_mode: false
+
+- name: Inventory Elephant directory entries without following them
+  ansible.builtin.command:
+    argv:
+      - find
+      - "{{ dotfiles_home }}/.config/elephant"
+      - -mindepth
+      - '1'
+      - -maxdepth
+      - '1'
+      - -printf
+      - '%f\n'
+  register: desktop_shell_current_elephant_inventory
+  changed_when: false
+  check_mode: false
+
+- name: Reject unexpected Waybar or Elephant entries
+  ansible.builtin.assert:
+    that:
+      - (desktop_shell_current_waybar_inventory.stdout_lines | sort) == (desktop_shell_current_expected_waybar_entries | sort)
+      - (desktop_shell_current_elephant_inventory.stdout_lines | sort) == (desktop_shell_current_expected_elephant_entries | sort)
+    fail_msg: unexpected unmanaged entry in Waybar or Elephant runtime directory
+
+- name: Validate managed Waybar and Elephant entries before migration
+  ansible.builtin.stat:
+    path: "{{ shell_entry.target }}"
+    follow: false
+    checksum_algorithm: sha256
+  loop: "{{ desktop_shell_current_directory_entries }}"
+  loop_control:
+    loop_var: shell_entry
+  register: desktop_shell_current_entry_states
+  changed_when: false
+
+- name: Adopt current shell directory links
+  ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
+  loop: "{{ desktop_shell_current_link_mappings }}"
+  loop_control:
+    loop_var: shell_link
+  vars:
+    managed_link_target: "{{ shell_link.target }}"
+    managed_link_expected_source: "{{ shell_link.expected_source }}"
+    managed_link_legacy_sources: "{{ shell_link.legacy_sources }}"
+
+- name: Assert Waybar and Elephant entries are known and byte-equivalent
+  ansible.builtin.assert:
+    that:
+      - entry_state.stat.exists | default(false)
+      - (entry_state.stat.isreg | default(false)) or (entry_state.stat.islnk | default(false))
+      - shell_entry.expected_source is match('^' + (dotfiles_root | regex_escape) + '(/|$)')
+      - shell_entry.legacy_source is match('^' + (dotfiles_root | regex_escape) + '(/|$)')
+      - >-
+        (entry_state.stat.islnk | default(false) and
+         entry_state.stat.lnk_source in [shell_entry.expected_source, shell_entry.legacy_source]) or
+        (entry_state.stat.isreg | default(false) and
+         lookup('ansible.builtin.pipe', 'sha256sum ' + (shell_entry.expected_source | quote) + ' | cut -d" " -f1') == (entry_state.stat.checksum | default('')))
+    fail_msg: "Unexpected or changed managed shell entry: {{ shell_entry.target }}"
+  loop: "{{ desktop_shell_current_entry_states.results }}"
+  loop_control:
+    loop_var: entry_state
+  vars:
+    shell_entry: "{{ entry_state.shell_entry }}"
+
+- name: Atomically relink managed Waybar and Elephant entries
+  ansible.builtin.shell: |
+    set -euo pipefail
+    tmp="{{ shell_entry.target }}.dotfiles-new-$$"
+    ln -s -- "{{ shell_entry.expected_source }}" "$tmp"
+    mv -T -- "$tmp" "{{ shell_entry.target }}"
+  args:
+    executable: /bin/bash
+  loop: "{{ desktop_shell_current_directory_entries }}"
+  register: desktop_shell_current_entry_cutover
+  changed_when: true
+  loop_control:
+    index_var: entry_index
+    loop_var: shell_entry
+  when: >-
+    (desktop_shell_current_entry_states.results[entry_index].stat.isreg | default(false)) or
+    (desktop_shell_current_entry_states.results[entry_index].stat.islnk | default(false) and
+     desktop_shell_current_entry_states.results[entry_index].stat.lnk_source != shell_entry.expected_source)

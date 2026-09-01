@@ -1,3 +1,4 @@
 ---
 desktop_actions_current_candidate_root: "{{ dotfiles_root }}/config/user/hypr/candidate/actions/current"
 desktop_actions_current_packages: []
+desktop_actions_current_link_mappings: []

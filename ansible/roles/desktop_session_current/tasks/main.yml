@@ -20,3 +20,13 @@
       - lookup('ansible.builtin.file', desktop_session_current_candidate_root + '/session.lua') is search('hypridle')
       - lookup('ansible.builtin.file', desktop_session_current_candidate_root + '/session.lua') is search('hyprlock')
       - lookup('ansible.builtin.file', desktop_session_current_candidate_root + '/session.lua') is not search('waybar|walker|kitty|dolphin|chromium')
+
+- name: Adopt current session runtime links
+  ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
+  loop: "{{ desktop_session_current_link_mappings }}"
+  loop_control:
+    loop_var: session_link
+  vars:
+    managed_link_target: "{{ session_link.target }}"
+    managed_link_expected_source: "{{ session_link.expected_source }}"
+    managed_link_legacy_sources: "{{ session_link.legacy_sources }}"

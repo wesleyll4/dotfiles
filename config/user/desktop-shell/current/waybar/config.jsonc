@@ -1,0 +1,97 @@
+{
+  "layer": "top",
+  "position": "top",
+  "margin-top": 0,
+  "margin-left": 10,
+  "margin-right": 10,
+  "spacing": 4,
+
+  "modules-left": ["custom/launcher", "hyprland/workspaces", "custom/cheatsheet", "hyprland/window"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "custom/clipboard",
+    "pulseaudio",
+    "bluetooth",
+    "network",
+    "cpu",
+    "memory",
+    "tray",
+    "custom/power",
+  ],
+
+  "hyprland/workspaces": { 
+    "format": "{name}", // Isso garante que o número apareça
+    "on-click": "activate",
+    "all-outputs": true,
+    "sort-by-number": true,
+    "persistent-workspaces": {
+      "*": 5 // Mantém os números de 1 a 5 sempre visíveis, se desejar
+    }
+  },
+
+  "clock": {
+    "format": "{:%d/%m %H:%M}",
+    // "format-alt": "{:%A, %d %B %Y}",
+    "on-click": "astal -i mydots -t calendar",
+    "tooltip": false,
+  },
+
+  "memory": {
+    "interval": 10,
+    "format": " {used:0.1f}GB/{total:0.1f}GB",
+    "tooltip": true,
+    "tooltip-format": "Memória em uso: {percentage}%"
+  },
+
+  "bluetooth": {
+    "format": " {status}",
+    "format-connected": " {device_alias}",
+    "format-connected-battery": " {device_alias} {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias}\t{controller_address}",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "on-click": "blueman-manager"
+  },
+
+  "custom/power": {
+    "format": "⏻",
+    "on-click": "walker -m menus:session",
+    "tooltip": false
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-icons": {
+        "default": ["", "", ""]
+    },
+    "on-click": "walker --provider wireplumber",
+  },
+
+  "network": {
+    "format-wifi": "  {essid}",
+    "format-ethernet": "󰈀  {ipaddr}", // Ícone de cabo para sua enp110s0
+    "format-linked": "󰈀  {ifname} (No IP)",
+    "format-disconnected": "⚠  Disconnected",
+    "tooltip-format": "{ifname} via {gwaddr} ",
+    "on-click": "hyprctl dispatch exec '[float; size 400 600; move (monitor_w*0.79) (monitor_h*0.05)] kitty -e nmtui'"
+  },
+
+  "custom/clipboard": {
+    "format": "󰅌",
+    "on-click": "walker --provider clipboard"
+  },
+
+  "custom/cheatsheet": {
+    "format": " 󱓞 ",
+    "tooltip": false,
+    "on-click": "walker -m menus:cheatsheet"
+  },
+
+  "custom/launcher": {
+    // "format": "  ",
+    "format": "󰣇", // Ícone clássico do Arch
+    "on-click": "walker --provider desktopapplications",
+    "tooltip": false
+},
+
+}
