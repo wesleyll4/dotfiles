@@ -86,12 +86,12 @@ all:
 ansible/inventories/local/group_vars/platform_arch.yml is loaded through platform_arch membership. Profile policy is explicit:
 
 ~~~yaml
-# workstation.yml
+# desktop.yml
 vars_files:
-  - ../profiles/workstation.yml
+  - ../profiles/desktop.yml
 ~~~
 
-ansible/profiles/workstation.yml and ansible/profiles/dev.yml define dotfiles_profile_name, role-selection policy, application action commands, and selected slot sources. They contain no tasks.
+ansible/profiles/desktop.yml and ansible/profiles/dev.yml define dotfiles_profile_name, role-selection policy, application action commands, and selected slot sources. They contain no tasks.
 
 ## Task 1: Review and checkpoint current state
 
@@ -120,9 +120,9 @@ ansible/profiles/workstation.yml and ansible/profiles/dev.yml define dotfiles_pr
 - Create: ansible/requirements.yml
 - Create: ansible/inventories/local/hosts.yml
 - Create: ansible/inventories/local/group_vars/all.yml
-- Create: ansible/profiles/workstation.yml
+- Create: ansible/profiles/desktop.yml
 - Create: ansible/profiles/dev.yml
-- Create: ansible/playbooks/workstation.yml
+- Create: ansible/playbooks/desktop.yml
 - Create: ansible/playbooks/dev.yml
 - Create: ansible/playbooks/verify.yml
 - Create: ansible/roles/common/defaults/main.yml
@@ -135,7 +135,7 @@ ansible/profiles/workstation.yml and ansible/profiles/dev.yml define dotfiles_pr
 
 - [x] Write structure test for every required file and bootstrap executable.
 - [x] Write bootstrap-context test that calls bootstrap from a temporary unrelated current directory with DOTFILES_BOOTSTRAP_DRY_RUN=1 and asserts output contains the canonical ANSIBLE_CONFIG, absolute playbook, dotfiles_root, and fixture dotfiles_home.
-- [x] Implement bootstrap help, workstation/dev selection, --check, and dry run. Real mode may install only Ansible when ansible-playbook is absent.
+- [x] Implement bootstrap help, desktop/dev selection, --check, and dry run. Real mode may install only Ansible when ansible-playbook is absent.
 - [x] Define empty requirements lists: collections: [] and roles: [].
 - [x] Implement common preflight assertions for absolute dotfiles_root and dotfiles_home.
 - [x] Document ignored local secret input policy and inspirations fields; add only matching ignore patterns.
@@ -146,25 +146,25 @@ ansible/profiles/workstation.yml and ansible/profiles/dev.yml define dotfiles_pr
 
 **Rollback:** revert structural commit.
 
-## Task 3: Install Ansible once and prove configuration/vars discovery
+## Task 3: Install Ansible once and prove bootstrap/profile discovery
 
 **Type:** minimal prerequisite; installs Ansible only.
 
 **Files:**
 
 - Create: tests/ansible-vars-test.sh
-- Create: tests/fixtures/assert-workstation-vars.yml
+- Create: tests/fixtures/assert-desktop-vars.yml
 - Create: tests/fixtures/assert-dev-vars.yml
 - Modify: README.md
 
 - [ ] Confirm bootstrap dry-run lists only Ansible and selected no-op playbook.
-- [ ] Run bootstrap workstation --check.
-- [ ] Fixture plays load the same profile vars_files as real profile plays and assert platform name arch, expected profile name, list-shaped package vars, dotfiles_root, and fixture dotfiles_home.
-- [ ] Run ansible-vars-test.sh from an unrelated current directory.
+- [ ] Run bootstrap desktop --check.
+- [ ] Fixture plays load the same profile vars_files as real profile plays and assert expected profile name, dotfiles_root, and fixture dotfiles_home. Platform vars and package lists are intentionally absent until Task 4.
+- [ ] Run ansible-vars-test.sh from an unrelated current directory; it verifies ANSIBLE_CONFIG, inventory, roles path, explicit profile vars, and fixture HOME only.
 - [ ] Run ansible-playbook syntax check and check mode through bootstrap, not direct incidental cwd commands.
 - [ ] Commit: docs: verify Ansible bootstrap workflow.
 
-**Validation:** configuration, inventory, roles path, platform vars, profile vars, and fixture HOME all resolve through bootstrap contract.
+**Validation:** configuration, inventory, roles path, profile vars, and fixture HOME resolve through bootstrap contract.
 
 **Rollback:** revert documentation/tests; leave Ansible installed.
 
@@ -182,13 +182,14 @@ ansible/profiles/workstation.yml and ansible/profiles/dev.yml define dotfiles_pr
 - Modify: profile playbooks and structure test
 
 - [ ] Define empty literal lists for cli tools, development, terminal, shell, Hyprland core, session, shell UI, and actions.
+- [ ] Create platform_arch.yml with dotfiles_platform_name: arch and the empty literal lists, then extend ansible-vars-test.sh fixtures to assert the platform name and list-shaped package vars.
 - [ ] Implement packages interface package_names as list; backend uses ansible.builtin.package with state present only for nonempty list.
 - [ ] Include platform_arch before capability roles and assert current package manager is Arch-compatible.
 - [ ] Add check-mode fixture with package_names containing bash to prove builtin package backend selection without transaction.
 - [ ] If backend selection fails, stop Task 4 and request a plan revision before adding external collection.
 - [ ] Commit: feat: add Arch package role boundary.
 
-**Validation:** empty real lists cause no package action; backend fixture selects builtin backend.
+**Validation:** platform group vars are proven available by the extended fixtures; empty real lists cause no package action; backend fixture selects builtin backend.
 
 **Rollback:** revert.
 
@@ -252,7 +253,7 @@ managed_link_target: /absolute/runtime/target
 
 **Files:**
 
-- Modify: cli_tools tasks, workstation/dev profile composition, README.md
+- Modify: cli_tools tasks, desktop/dev profile composition, README.md
 
 - [ ] Record current live targets and preflight each with expected/legacy contract.
 - [ ] Apply cli_tools role with dotfiles_home real HOME.
@@ -402,7 +403,7 @@ managed_link_target: /absolute/runtime/target
 - Create: ansible/roles/desktop_shell_current/tasks/main.yml
 - Create: ansible/roles/desktop_actions_current/defaults/main.yml
 - Create: ansible/roles/desktop_actions_current/tasks/main.yml
-- Modify: ansible/profiles/workstation.yml
+- Modify: ansible/profiles/desktop.yml
 - Modify: tests/config-test.sh
 
 - [ ] Copy UI configs/scripts to candidates while retaining old source paths.
@@ -445,14 +446,14 @@ managed_link_target: /absolute/runtime/target
 
 - Create: ansible/playbooks/hyprland-cutover.yml
 - Create: ansible/roles/desktop_hyprland/tasks/cutover.yml
-- Modify: workstation.yml, README.md
+- Modify: desktop.yml, README.md
 
 - [ ] Require passing Task-15 fixture and record every live target/link.
 - [ ] Preflight every target and each named slot; permit only absent, expected, or approved legacy source.
 - [ ] Use one Ansible block/rescue: materialize complete runtime and session.lua, shell.lua, apps.lua; switch live entrypoint last; do not reload inside block.
 - [ ] Rescue restores every recorded old link target upon any task failure.
 - [ ] After block success, verify live entrypoint, perform one controlled reload/restart, and smoke-test current desktop behavior.
-- [ ] Run workstation profile second time and require no changes.
+- [ ] Run desktop profile second time and require no changes.
 - [ ] Commit: feat: cut over Hyprland configuration architecture.
 
 **Validation:** no incomplete core is activated; all providers are valid before one reload.

@@ -5,7 +5,7 @@
 O entrypoint arquitetural é `./bootstrap`:
 
 ```sh
-./bootstrap workstation --check
+./bootstrap desktop --check
 ./bootstrap dev --check
 ```
 

@@ -2,16 +2,16 @@
 set -euo pipefail
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
-profile=workstation
+profile=desktop
 check_mode=0
 
 usage() {
-    printf 'usage: %s [workstation|dev] [--check]\n' "$0"
+    printf 'usage: %s [desktop|dev] [--check]\n' "$0"
 }
 
 while (($#)); do
     case $1 in
-        workstation|dev)
+        desktop|dev)
             profile=$1
             ;;
         --check)

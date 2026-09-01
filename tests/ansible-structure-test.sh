@@ -9,9 +9,9 @@ for path in \
     ansible/requirements.yml \
     ansible/inventories/local/hosts.yml \
     ansible/inventories/local/group_vars/all.yml \
-    ansible/profiles/workstation.yml \
+    ansible/profiles/desktop.yml \
     ansible/profiles/dev.yml \
-    ansible/playbooks/workstation.yml \
+    ansible/playbooks/desktop.yml \
     ansible/playbooks/dev.yml \
     ansible/playbooks/verify.yml \
     ansible/roles/common/defaults/main.yml \
@@ -29,4 +29,4 @@ done
     exit 1
 }
 
-"$root/bootstrap" --help | grep -F 'workstation|dev' >/dev/null
+"$root/bootstrap" --help | grep -F 'desktop|dev' >/dev/null

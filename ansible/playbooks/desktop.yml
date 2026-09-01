@@ -1,10 +1,10 @@
-- name: Provision workstation profile
+- name: Provision desktop profile
   hosts: local
   gather_facts: true
   vars_files:
-    - ../profiles/workstation.yml
+    - ../profiles/desktop.yml
   tasks:
-    - name: Compose selected workstation roles
+    - name: Compose selected desktop roles
       ansible.builtin.include_role:
         name: "{{ item }}"
       loop: "{{ profile_roles }}"
