@@ -1,0 +1,95 @@
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    color: #c0caf5;
+}
+
+window {
+    background-color: #1a1b26;
+}
+
+frame.background {
+    background-color: rgba(26, 27, 38, 0.88);
+    border: 1px solid rgba(122, 162, 247, 0.55);
+    border-radius: 18px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+    padding: 10px;
+}
+
+frame.background label {
+    color: #c0caf5;
+    font-weight: 600;
+}
+
+entry,
+passwordentry,
+combobox button {
+    min-height: 44px;
+    color: #c0caf5;
+    background-color: rgba(36, 40, 59, 0.94);
+    border: 1px solid rgba(122, 162, 247, 0.34);
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+entry:focus,
+passwordentry:focus,
+combobox button:focus {
+    border-color: #7aa2f7;
+    box-shadow: 0 0 0 2px rgba(122, 162, 247, 0.22);
+}
+
+button {
+    min-height: 40px;
+    padding: 6px 18px;
+    color: #c0caf5;
+    background-color: rgba(36, 40, 59, 0.96);
+    border: 1px solid rgba(122, 162, 247, 0.35);
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+button:hover {
+    background-color: rgba(65, 72, 104, 0.96);
+    border-color: #bb9af7;
+}
+
+button.suggested-action {
+    color: #1a1b26;
+    background: #7aa2f7;
+    border-color: #7aa2f7;
+    font-weight: 700;
+}
+
+button.suggested-action:hover {
+    background: #89b4fa;
+}
+
+button.destructive-action {
+    color: #a9b1d6;
+    background-color: rgba(36, 40, 59, 0.9);
+    background-image: none;
+    border-color: rgba(122, 162, 247, 0.4);
+}
+
+button.destructive-action:hover,
+button.destructive-action:focus {
+    color: #c0caf5;
+    background-color: rgba(65, 72, 104, 0.96);
+    background-image: none;
+    border-color: #7aa2f7;
+}
+
+button.destructive-action:active,
+button.destructive-action:checked {
+    color: #c0caf5;
+    background-color: rgba(50, 55, 78, 0.98);
+    background-image: none;
+    border-color: #7aa2f7;
+    box-shadow: none;
+}
+
+infobar {
+    background-color: rgba(26, 27, 38, 0.94);
+    border: 1px solid rgba(187, 154, 247, 0.55);
+    border-radius: 10px;
+}

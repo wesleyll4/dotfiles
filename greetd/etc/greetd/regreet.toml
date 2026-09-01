@@ -1,0 +1,28 @@
+skip_selection = false
+
+[background]
+path = "@WALLPAPER@"
+fit = "Cover"
+
+[GTK]
+application_prefer_dark_theme = true
+cursor_theme_name = "Adwaita"
+cursor_blink = true
+font_name = "JetBrainsMono Nerd Font 14"
+icon_theme_name = "Adwaita"
+theme_name = "Adwaita"
+
+[commands]
+reboot = ["loginctl", "reboot"]
+poweroff = ["loginctl", "poweroff"]
+x11_prefix = ["startx", "/usr/bin/env"]
+
+[appearance]
+greeting_msg = "Bem-vindo de volta"
+
+[widget.clock]
+format = "%A, %d de %B  •  %H:%M"
+resolution = "1s"
+timezone = "America/Sao_Paulo"
+label_width = 360
+locale = "pt_BR"

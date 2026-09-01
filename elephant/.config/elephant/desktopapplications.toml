@@ -1,5 +1,5 @@
 action_min_score = 20
-blacklist = ['bssh|bvnc|avahi', 'yad-', 'qv4l2|qvidcap', 'xgps', 'rofi', 'uuctl|htop|vim\.desktop', 'networkmanager_dmenu', 'nm-connection-editor', 'vim']
+blacklist = ['bssh|bvnc|avahi', 'yad-', 'qv4l2|qvidcap', 'xgps', 'rofi', 'uuctl|htop|vim\.desktop', 'networkmanager_dmenu', 'nm-connection-editor']
 history = true
 history_when_empty = false
 icon_placeholder = 'applications-other'
@@ -11,9 +11,9 @@ show_actions = false
 show_actions_without_query = false
 show_generic = true
 single_instance_apps = ['discord']
-window_integration = false
-window_integration_ignore_actions = false
-wm_integration = false
+window_integration = true
+window_integration_ignore_actions = true
+wm_integration = true
 
 [Config]
 hide_from_providerlist = false

@@ -21,13 +21,27 @@ window#waybar {
 #battery,
 #tray,
 #custom-clipboard,
-#custom-power {
+#custom-power,
+#bluetooth {
     padding: 4px 15px;
     background-color: #313244;
     color: #f9e2af; 
     border-radius: 12px;
     margin: 4px 2px;
     font-weight: bold;
+}
+
+#bluetooth {
+    color: #b4befe; /* lavender - ainda não usado nos outros módulos */
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: #6c7086; /* overlay0 - apagado, indica desligado */
+}
+
+#bluetooth.connected {
+    color: #94e2d5; /* teal - destaque quando conectado */
 }
 
 #workspaces button.active {

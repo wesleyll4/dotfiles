@@ -50,3 +50,8 @@ function y() {
     fi
     rm -f -- "$tmp"
 }
+
+. "$HOME/.local/share/../bin/env"
+
+# opencode
+export PATH=/home/wes/.opencode/bin:$PATH

@@ -11,6 +11,7 @@
   "modules-right": [
     "custom/clipboard",
     "pulseaudio",
+    "bluetooth",
     "network",
     "cpu",
     "memory",
@@ -30,15 +31,9 @@
 
   "clock": {
     "format": "{:%d/%m %H:%M}",
-    "format-alt": "{:%A, %d %B %Y}",
-    "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
-    "calendar": {
-        "mode": "month",
-        "on-scroll": 1,
-        "format": {
-            "today": "<span color='#7aa2f7'><b>{}</b></span>"
-        }
-    }
+    // "format-alt": "{:%A, %d %B %Y}",
+    "on-click": "astal -i mydots -t calendar",
+    "tooltip": false,
   },
 
   "memory": {
@@ -48,9 +43,19 @@
     "tooltip-format": "Memória em uso: {percentage}%"
   },
 
+  "bluetooth": {
+    "format": " {status}",
+    "format-connected": " {device_alias}",
+    "format-connected-battery": " {device_alias} {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias}\t{controller_address}",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "on-click": "blueman-manager"
+  },
+
   "custom/power": {
     "format": "⏻",
-    "on-click": "wlogout -b 4 -m 500 -c 15 -r 15",
+    "on-click": "walker -m menus:session",
     "tooltip": false
   },
 
@@ -63,7 +68,6 @@
   },
 
   "network": {
-    "interface": "enp110s0", // Força a placa correta
     "format-wifi": "  {essid}",
     "format-ethernet": "󰈀  {ipaddr}", // Ícone de cabo para sua enp110s0
     "format-linked": "󰈀  {ifname} (No IP)",
