@@ -275,10 +275,10 @@ managed_link_target: /absolute/runtime/target
 
 **Files:** remove only legacy CLI source paths proven unused.
 
-- [ ] Assert all live targets point to expected new source.
-- [ ] Search tracked config for each old path.
-- [ ] Remove one old component source per cleanup commit.
-- [ ] Re-run CLI fixture and real profile after each removal.
+- [x] Assert all live targets point to expected new source.
+- [x] Search tracked config for each old path.
+- [x] Remove one old component source per cleanup commit.
+- [x] Re-run CLI fixture and real profile after each removal.
 
 **Validation:** no active target breaks.
 

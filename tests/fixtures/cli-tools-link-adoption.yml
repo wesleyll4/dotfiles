@@ -12,8 +12,7 @@
         legacy_sources: []
       - target: "{{ dotfiles_home }}/.config/yazi/keymap.toml"
         expected_source: "{{ dotfiles_root }}/config/user/yazi/keymap.toml"
-        legacy_sources:
-          - "{{ dotfiles_root }}/yazi/.config/yazi/keymap.toml"
+        legacy_sources: []
   tasks:
     - name: Apply staged CLI-tool mappings
       ansible.builtin.include_role:
