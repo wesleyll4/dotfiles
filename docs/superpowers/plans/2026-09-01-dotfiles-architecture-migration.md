@@ -214,13 +214,13 @@ managed_link_legacy_sources: [/absolute/old/source]
 managed_link_target: /absolute/runtime/target
 ~~~
 
-- [ ] Implement canonical source validation within dotfiles_root.
-- [ ] Create missing target link.
-- [ ] Preserve matching expected link unchanged.
-- [ ] Relink only matching approved legacy symlink after recording it and removing that verified symlink.
-- [ ] Fail untouched for unexpected symlink, regular file, or directory.
-- [ ] Fixture covers expected source, two approved legacy sources, unexpected symlink, file, and directory.
-- [ ] Commit: feat: add safe expected and legacy link adoption.
+- [x] Implement canonical source validation within dotfiles_root.
+- [x] Create missing target link.
+- [x] Preserve matching expected link unchanged.
+- [x] Relink only matching approved legacy symlink after recording it and removing that verified symlink.
+- [x] Fail untouched for unexpected symlink, regular file, or directory.
+- [x] Fixture covers expected source, two approved legacy sources, unexpected symlink, file, and directory.
+- [x] Commit: feat: add safe expected and legacy link adoption.
 
 **Validation:** fixture proves no generic force behavior and no write outside fixture dotfiles_home.
 

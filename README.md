@@ -23,6 +23,20 @@ bash tests/ansible-vars-test.sh
 
 O teste usa um `dotfiles_home` temporário; ele não escreve no `$HOME` real.
 
+### Links gerenciados
+
+As roles de configuração usam o contrato conservador
+`ansible/roles/common/tasks/adopt_link.yml`. Um link pode ser criado quando o
+target está ausente, mantido quando já aponta para a fonte esperada, ou migrado
+somente de uma fonte legada explicitamente aprovada. Symlinks inesperados,
+arquivos e diretórios falham sem ser alterados. As fontes precisam ser caminhos
+canônicos dentro de `dotfiles_root`; o target precisa estar dentro de
+`dotfiles_home`. O contrato nunca usa sobrescrita genérica.
+
+```sh
+bash tests/config-link-test.sh
+```
+
 Configuração pessoal para Arch Linux, Hyprland e os utilitários do desktop.
 Os arquivos ficam versionados aqui e são ligados ao `$HOME`; configurações do
 sistema são copiadas com backup, porque `/etc` não deve apontar para o diretório

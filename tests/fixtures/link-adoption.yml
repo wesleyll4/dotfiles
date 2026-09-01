@@ -1,0 +1,7 @@
+---
+- name: Exercise conservative managed-link adoption
+  hosts: local
+  gather_facts: false
+  tasks:
+    - name: Apply managed-link contract
+      ansible.builtin.include_tasks: ../../ansible/roles/common/tasks/adopt_link.yml

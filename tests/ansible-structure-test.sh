@@ -17,6 +17,7 @@ for path in \
     ansible/playbooks/verify.yml \
     ansible/roles/common/defaults/main.yml \
     ansible/roles/common/tasks/main.yml \
+    ansible/roles/common/tasks/adopt_link.yml \
     ansible/roles/platform_arch/tasks/main.yml \
     ansible/roles/packages/defaults/main.yml \
     ansible/roles/packages/tasks/main.yml \
@@ -31,6 +32,11 @@ done
 
 [[ -x "$root/bootstrap" ]] || {
     printf 'bootstrap is not executable\n' >&2
+    exit 1
+}
+
+[[ -x "$root/tests/config-link-test.sh" ]] || {
+    printf 'config-link-test.sh is not executable\n' >&2
     exit 1
 }
 

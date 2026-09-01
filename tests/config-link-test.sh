@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root=$(git rev-parse --show-toplevel)
+fixture=$(mktemp -d)
+trap 'rm -rf -- "$fixture"' EXIT
+
+repo="$fixture/repository"
+home="$fixture/home"
+outside="$fixture/outside"
+mkdir -p "$repo/config" "$home/links" "$outside"
+printf 'expected\n' > "$repo/config/expected"
+printf 'legacy-one\n' > "$repo/config/legacy-one"
+printf 'legacy-two\n' > "$repo/config/legacy-two"
+printf 'unexpected\n' > "$repo/config/unexpected"
+
+expected="$repo/config/expected"
+legacy_one="$repo/config/legacy-one"
+legacy_two="$repo/config/legacy-two"
+unexpected="$repo/config/unexpected"
+
+run_adoption() {
+    local target=$1 expected_source=$2 legacy_sources=$3
+    ANSIBLE_CONFIG="$root/ansible/ansible.cfg" \
+        ansible-playbook "$root/tests/fixtures/link-adoption.yml" \
+        -e "dotfiles_root=$repo" \
+        -e "dotfiles_home=$home" \
+        -e "managed_link_target=$target" \
+        -e "managed_link_expected_source=$expected_source" \
+        -e "{\"managed_link_legacy_sources\": $legacy_sources}"
+}
+
+assert_link_target() {
+    local target=$1 source=$2
+    [[ -L "$target" ]]
+    [[ "$(realpath -e -- "$target")" == "$source" ]]
+}
+
+assert_fails_unchanged_symlink() {
+    local target=$1 before=$2
+    if run_adoption "$target" "$expected" "[$legacy_one, $legacy_two]"; then
+        printf 'unexpected symlink adoption succeeded: %s\n' "$target" >&2
+        exit 1
+    fi
+    [[ "$(readlink -- "$target")" == "$before" ]]
+}
+
+# Missing target is created as the expected link.
+missing_target="$home/links/missing"
+run_adoption "$missing_target" "$expected" "[$legacy_one, $legacy_two]"
+assert_link_target "$missing_target" "$expected"
+
+# Existing expected link stays unchanged.
+expected_target="$home/links/expected"
+ln -s -- "$expected" "$expected_target"
+expected_before=$(readlink -- "$expected_target")
+run_adoption "$expected_target" "$expected" "[$legacy_one, $legacy_two]"
+[[ "$(readlink -- "$expected_target")" == "$expected_before" ]]
+
+# Each explicitly approved legacy source is relinked to expected.
+legacy_one_target="$home/links/legacy-one"
+ln -s -- "$legacy_one" "$legacy_one_target"
+run_adoption "$legacy_one_target" "$expected" "[$legacy_one, $legacy_two]"
+assert_link_target "$legacy_one_target" "$expected"
+
+legacy_two_target="$home/links/legacy-two"
+ln -s -- "$legacy_two" "$legacy_two_target"
+run_adoption "$legacy_two_target" "$expected" "[$legacy_one, $legacy_two]"
+assert_link_target "$legacy_two_target" "$expected"
+
+# Rejected targets preserve their exact content/state.
+unexpected_target="$home/links/unexpected"
+ln -s -- "$unexpected" "$unexpected_target"
+assert_fails_unchanged_symlink "$unexpected_target" "$(readlink -- "$unexpected_target")"
+
+file_target="$home/links/file"
+printf 'do not replace\n' > "$file_target"
+file_before=$(sha256sum -- "$file_target")
+if run_adoption "$file_target" "$expected" "[$legacy_one, $legacy_two]"; then
+    printf 'regular file adoption succeeded\n' >&2
+    exit 1
+fi
+[[ "$(sha256sum -- "$file_target")" == "$file_before" ]]
+
+directory_target="$home/links/directory"
+mkdir -p "$directory_target"
+printf 'do not replace\n' > "$directory_target/sentinel"
+directory_before=$(sha256sum -- "$directory_target/sentinel")
+if run_adoption "$directory_target" "$expected" "[$legacy_one, $legacy_two]"; then
+    printf 'directory adoption succeeded\n' >&2
+    exit 1
+fi
+[[ -d "$directory_target" ]]
+[[ "$(sha256sum -- "$directory_target/sentinel")" == "$directory_before" ]]
+
+# Sources must be canonical and inside dotfiles_root; target must stay in home.
+outside_source="$outside/source"
+printf 'outside\n' > "$outside_source"
+outside_target="$home/links/outside-source"
+if run_adoption "$outside_target" "$outside_source" "[]"; then
+    printf 'outside source adoption succeeded\n' >&2
+    exit 1
+fi
+[[ ! -e "$outside_target" && ! -L "$outside_target" ]]
+
+noncanonical_target="$home/links/noncanonical"
+if run_adoption "$noncanonical_target" "$repo/config/../config/expected" "[]"; then
+    printf 'noncanonical source adoption succeeded\n' >&2
+    exit 1
+fi
+[[ ! -e "$noncanonical_target" && ! -L "$noncanonical_target" ]]
+
+escaped_target="$outside/escaped"
+if run_adoption "$escaped_target" "$expected" "[$legacy_one, $legacy_two]"; then
+    printf 'outside-home target adoption succeeded\n' >&2
+    exit 1
+fi
+[[ ! -e "$escaped_target" && ! -L "$escaped_target" ]]
+
+printf 'managed link adoption: ok\n'
