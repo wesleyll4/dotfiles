@@ -324,10 +324,10 @@ real runtime directory; migration is performed entry-by-entry.
 - [ ] Extend fixtures for per-entry expected/legacy adoption while rejecting regular files, directories, and unapproved symlinks.
 - [ ] Preflight all runtime entries; abort before mutation on any unexpected state.
 - [ ] Relink only approved entries to config/user/kitty/<entry>; never remove or replace ~/.config/kitty.
-- [ ] Run Kitty debug config, fresh-terminal smoke test, and two profile executions with changed=0 on the second; commit feat: cut over current Kitty runtime links.
+- [ ] Confirm the installed Kitty version; start a controlled fresh instance with `kitty --config <candidate-kitty.conf>`, verify its behavior, then cut over and open a new Kitty through the normal path; run two profile executions with changed=0 on the second; commit feat: cut over current Kitty runtime links.
 - [ ] After no live/versioned references remain, remove old sources in a separate cleanup commit.
 
-**Validation:** Kitty config parses and retains current shell behavior.
+**Validation:** the installed Kitty version accepts the candidate config, a controlled fresh instance starts and exits cleanly, and a normal post-cutover Kitty instance retains current shell behavior.
 
 **Rollback:** restore each recorded per-entry legacy link; the runtime directory itself is never replaced.
 
