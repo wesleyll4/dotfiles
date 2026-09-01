@@ -1,0 +1,3 @@
+---
+desktop_session_current_candidate_root: "{{ dotfiles_root }}/config/user/hypr/candidate/session/current"
+desktop_session_current_packages: []

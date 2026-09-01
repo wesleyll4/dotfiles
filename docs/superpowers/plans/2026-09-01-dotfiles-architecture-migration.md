@@ -389,10 +389,10 @@ real runtime directory; migration is performed entry-by-entry.
 - Create: ansible/roles/desktop_session_current/tasks/main.yml
 - Modify: tests/config-test.sh
 
-- [ ] Copy Hypridle/Hyprlock sources byte-for-byte; keep old source valid.
-- [ ] Create session.lua containing only existing idle startup and lock binding behavior.
-- [ ] Test session owns lock/idle while core does not.
-- [ ] Commit: feat: stage current desktop session candidate.
+- [x] Copy Hypridle/Hyprlock sources byte-for-byte; keep old source valid.
+- [x] Create session.lua containing only existing idle startup and lock binding behavior.
+- [x] Test session owns lock/idle while core does not.
+- [x] Commit: feat: stage current desktop session candidate.
 
 **Validation:** session candidate parses in temporary runtime.
 

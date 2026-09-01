@@ -1,0 +1,22 @@
+---
+- name: Assert current session candidate sources exist
+  ansible.builtin.assert:
+    that:
+      - desktop_session_current_candidate_root is directory
+      - (desktop_session_current_candidate_root + '/hypridle.conf') is file
+      - (desktop_session_current_candidate_root + '/hyprlock.conf') is file
+      - (desktop_session_current_candidate_root + '/session.lua') is file
+    fail_msg: current session candidate is incomplete
+
+- name: Assert session package boundary remains empty
+  ansible.builtin.assert:
+    that:
+      - desktop_session_current_packages is sequence
+      - desktop_session_current_packages | length == 0
+
+- name: Assert session provider owns only idle and lock behavior
+  ansible.builtin.assert:
+    that:
+      - lookup('ansible.builtin.file', desktop_session_current_candidate_root + '/session.lua') is search('hypridle')
+      - lookup('ansible.builtin.file', desktop_session_current_candidate_root + '/session.lua') is search('hyprlock')
+      - lookup('ansible.builtin.file', desktop_session_current_candidate_root + '/session.lua') is not search('waybar|walker|kitty|dolphin|chromium')

@@ -28,8 +28,11 @@ for path in \
     ansible/roles/development/tasks/main.yml \
     ansible/roles/desktop_hyprland/defaults/main.yml \
     ansible/roles/desktop_hyprland/tasks/stage.yml \
+    ansible/roles/desktop_session_current/defaults/main.yml \
+    ansible/roles/desktop_session_current/tasks/main.yml \
     ansible/inventories/local/host_vars/main_desktop.yml \
     tests/fixtures/stage-hyprland-candidate.yml \
+    tests/fixtures/stage-session-candidate.yml \
     docs/decisions/current-tools.md \
     docs/decisions/development-and-gaming-scope.md \
     docs/package-inventory-arch.md \
