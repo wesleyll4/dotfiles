@@ -1,0 +1,15 @@
+- name: Assert Arch builtin package backend in check mode
+  hosts: local
+  gather_facts: true
+  tasks:
+    - name: Load packages through its public interface
+      ansible.builtin.include_role:
+        name: packages
+      vars:
+        package_names:
+          - bash
+
+    - name: Assert fixture remained in check mode
+      ansible.builtin.assert:
+        that:
+          - ansible_check_mode

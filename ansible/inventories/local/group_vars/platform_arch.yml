@@ -1,0 +1,11 @@
+---
+dotfiles_platform_name: arch
+
+cli_tools_packages: []
+development_packages: []
+terminal_packages: []
+shell_packages: []
+desktop_hyprland_packages: []
+desktop_session_packages: []
+desktop_shell_packages: []
+desktop_actions_packages: []

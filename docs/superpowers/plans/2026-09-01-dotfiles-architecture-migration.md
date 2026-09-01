@@ -180,14 +180,16 @@ ansible/profiles/desktop.yml and ansible/profiles/dev.yml define dotfiles_profil
 - Create: ansible/roles/packages/tasks/backend_arch.yml
 - Modify: ansible/inventories/local/group_vars/platform_arch.yml
 - Modify: profile playbooks and structure test
+- Modify: tests/ansible-vars-test.sh and profile-var fixtures
+- Create: tests/fixtures/assert-package-backend.yml
 
-- [ ] Define empty literal lists for cli tools, development, terminal, shell, Hyprland core, session, shell UI, and actions.
-- [ ] Create platform_arch.yml with dotfiles_platform_name: arch and the empty literal lists, then extend ansible-vars-test.sh fixtures to assert the platform name and list-shaped package vars.
-- [ ] Implement packages interface package_names as list; backend uses ansible.builtin.package with state present only for nonempty list.
-- [ ] Include platform_arch before capability roles and assert current package manager is Arch-compatible.
-- [ ] Add check-mode fixture with package_names containing bash to prove builtin package backend selection without transaction.
-- [ ] If backend selection fails, stop Task 4 and request a plan revision before adding external collection.
-- [ ] Commit: feat: add Arch package role boundary.
+- [x] Define empty literal lists for cli tools, development, terminal, shell, Hyprland core, session, shell UI, and actions.
+- [x] Create platform_arch.yml with dotfiles_platform_name: arch and the empty literal lists, then extend ansible-vars-test.sh fixtures to assert the platform name and list-shaped package vars.
+- [x] Implement packages interface package_names as list; backend uses ansible.builtin.package with state present only for nonempty list.
+- [x] Include platform_arch before capability roles and assert current package manager is Arch-compatible.
+- [x] Add check-mode fixture with package_names containing bash to prove builtin package backend selection without transaction.
+- [x] Backend selection passed with ansible.builtin.package; no external collection is required.
+- [x] Commit: feat: add Arch package role boundary.
 
 **Validation:** platform group vars are proven available by the extended fixtures; empty real lists cause no package action; backend fixture selects builtin backend.
 

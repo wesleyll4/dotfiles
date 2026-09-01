@@ -1,0 +1,6 @@
+---
+- name: Install requested Arch packages
+  ansible.builtin.package:
+    name: "{{ package_names }}"
+    state: present
+  when: package_names | length > 0

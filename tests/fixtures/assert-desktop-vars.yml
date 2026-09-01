@@ -14,3 +14,12 @@
           - dotfiles_profile_name == expected_profile
           - dotfiles_root is directory
           - dotfiles_home is directory
+          - dotfiles_platform_name == 'arch'
+          - cli_tools_packages is sequence
+          - development_packages is sequence
+          - terminal_packages is sequence
+          - shell_packages is sequence
+          - desktop_hyprland_packages is sequence
+          - desktop_session_packages is sequence
+          - desktop_shell_packages is sequence
+          - desktop_actions_packages is sequence

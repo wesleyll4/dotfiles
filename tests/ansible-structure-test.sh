@@ -9,6 +9,7 @@ for path in \
     ansible/requirements.yml \
     ansible/inventories/local/hosts.yml \
     ansible/inventories/local/group_vars/all.yml \
+    ansible/inventories/local/group_vars/platform_arch.yml \
     ansible/profiles/desktop.yml \
     ansible/profiles/dev.yml \
     ansible/playbooks/desktop.yml \
@@ -16,6 +17,10 @@ for path in \
     ansible/playbooks/verify.yml \
     ansible/roles/common/defaults/main.yml \
     ansible/roles/common/tasks/main.yml \
+    ansible/roles/platform_arch/tasks/main.yml \
+    ansible/roles/packages/defaults/main.yml \
+    ansible/roles/packages/tasks/main.yml \
+    ansible/roles/packages/tasks/backend_arch.yml \
     secrets/README.md \
     docs/inspirations/README.md; do
     [[ -f "$root/$path" ]] || {

@@ -1,0 +1,7 @@
+---
+- name: Assert Arch platform compatibility
+  ansible.builtin.assert:
+    that:
+      - dotfiles_platform_name == 'arch'
+      - ansible_facts.pkg_mgr == 'pacman'
+    fail_msg: platform_arch requires an Arch system managed by pacman

@@ -3,6 +3,10 @@
   gather_facts: true
   vars_files:
     - ../profiles/dev.yml
+  pre_tasks:
+    - name: Validate selected Arch platform
+      ansible.builtin.include_role:
+        name: platform_arch
   tasks:
     - name: Compose selected development roles
       ansible.builtin.include_role:

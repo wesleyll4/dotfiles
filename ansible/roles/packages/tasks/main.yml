@@ -1,0 +1,11 @@
+---
+- name: Assert package request is a list
+  ansible.builtin.assert:
+    that:
+      - package_names is sequence
+      - package_names is not string
+    fail_msg: package_names must be a list of platform package names
+
+- name: Load Arch package backend
+  ansible.builtin.include_tasks: backend_arch.yml
+  when: dotfiles_platform_name == 'arch'

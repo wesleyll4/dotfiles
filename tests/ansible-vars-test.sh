@@ -12,6 +12,7 @@ run_fixture() {
         cd "$fixture/elsewhere"
         ANSIBLE_CONFIG="$root/ansible/ansible.cfg" \
             ansible-playbook "$root/tests/fixtures/$playbook" \
+            --check \
             -e "dotfiles_root=$root" \
             -e "dotfiles_home=$fixture/home" \
             -e "expected_profile=$profile"
@@ -20,3 +21,4 @@ run_fixture() {
 
 run_fixture assert-desktop-vars.yml desktop
 run_fixture assert-dev-vars.yml dev
+run_fixture assert-package-backend.yml package-backend
