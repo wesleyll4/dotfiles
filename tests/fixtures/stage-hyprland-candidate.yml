@@ -1,0 +1,9 @@
+---
+- name: Stage neutral Hyprland candidate
+  hosts: local
+  gather_facts: false
+  tasks:
+    - name: Run Hyprland candidate staging role
+      ansible.builtin.include_role:
+        name: desktop_hyprland
+        tasks_from: stage
