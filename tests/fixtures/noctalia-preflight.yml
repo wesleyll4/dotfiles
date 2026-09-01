@@ -1,0 +1,12 @@
+---
+- name: Run Noctalia provider preflight only
+  hosts: local
+  gather_facts: true
+  vars:
+    dotfiles_root: "{{ lookup('env', 'DOTFILES_ROOT') }}"
+    dotfiles_home: "{{ lookup('env', 'DOTFILES_PREFLIGHT_HOME') }}"
+  tasks:
+    - name: Execute Noctalia read-only preflight
+      ansible.builtin.include_role:
+        name: desktop_shell_noctalia
+        tasks_from: preflight

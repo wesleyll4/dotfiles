@@ -4,6 +4,7 @@ desktop_shell_noctalia_shell_candidate_source: "{{ dotfiles_root }}/config/user/
 desktop_shell_noctalia_runtime_root: "{{ dotfiles_home }}/.config/noctalia"
 desktop_shell_noctalia_binary: noctalia
 desktop_shell_noctalia_validation_command: "noctalia config validate"
+desktop_shell_noctalia_preflight_state_home: "/tmp/noctalia-preflight-state"
 desktop_shell_noctalia_capabilities:
   - bar_panels
   - launcher

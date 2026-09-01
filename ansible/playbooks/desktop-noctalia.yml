@@ -3,6 +3,7 @@
   hosts: local
   gather_facts: true
   vars_files:
+    - ../profiles/desktop.yml
     - ../profiles/desktop-noctalia.yml
   pre_tasks:
     - name: Validate selected Arch platform

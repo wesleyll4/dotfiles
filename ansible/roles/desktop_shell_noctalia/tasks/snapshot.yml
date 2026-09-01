@@ -1,0 +1,53 @@
+---
+- name: Snapshot shell integration target without following it
+  ansible.builtin.stat:
+    path: "{{ desktop_shell_noctalia_preflight_shell_slot }}"
+    follow: false
+  register: desktop_shell_noctalia_snapshot_shell
+  changed_when: false
+
+- name: Resolve shell integration target read-only
+  ansible.builtin.command:
+    argv:
+      - readlink
+      - "{{ desktop_shell_noctalia_preflight_shell_slot }}"
+  register: desktop_shell_noctalia_snapshot_shell_link
+  changed_when: false
+  failed_when: false
+  when: desktop_shell_noctalia_snapshot_shell.stat.islnk | default(false)
+
+- name: Snapshot Noctalia runtime directory
+  ansible.builtin.stat:
+    path: "{{ desktop_shell_noctalia_runtime_root }}"
+    follow: false
+  register: desktop_shell_noctalia_snapshot_runtime
+  changed_when: false
+
+- name: Snapshot provider process states
+  ansible.builtin.command:
+    argv:
+      - pgrep
+      - -x
+      - "{{ provider_process }}"
+  loop:
+    - noctalia
+    - waybar
+    - walker
+    - elephant
+    - ags
+    - hypridle
+    - hyprlock
+  loop_control:
+    loop_var: provider_process
+  register: desktop_shell_noctalia_snapshot_processes
+  changed_when: false
+  failed_when: false
+
+- name: Record provider snapshot for future rollback
+  ansible.builtin.set_fact:
+    desktop_shell_noctalia_snapshot:
+      shell_slot: "{{ desktop_shell_noctalia_snapshot_shell }}"
+      shell_slot_link: "{{ desktop_shell_noctalia_snapshot_shell_link | default({}) }}"
+      noctalia_runtime: "{{ desktop_shell_noctalia_snapshot_runtime }}"
+      processes: "{{ desktop_shell_noctalia_snapshot_processes }}"
+  changed_when: false

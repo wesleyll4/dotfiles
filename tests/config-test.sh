@@ -11,6 +11,7 @@ trap 'rm -rf -- "$tmp_root"' EXIT
 
 bash "$repo_root/tests/noctalia-provider-test.sh"
 bash "$repo_root/tests/noctalia-profile-fixture-test.sh"
+bash "$repo_root/tests/noctalia-preflight-fixture-test.sh"
 
 bash "$repo_root/tests/hyprland-candidate-test.sh"
 

@@ -1,0 +1,78 @@
+---
+- name: Define Noctalia preflight paths
+  ansible.builtin.set_fact:
+    desktop_shell_noctalia_preflight_shell_slot: "{{ dotfiles_home }}/.config/hypr/integrations/shell.lua"
+    desktop_shell_noctalia_preflight_config_source: "{{ desktop_shell_noctalia_declarative_root }}/config.toml"
+  changed_when: false
+
+- name: Snapshot current shell/provider state
+  ansible.builtin.include_tasks: snapshot.yml
+
+- name: Inspect Noctalia staged assets
+  ansible.builtin.stat:
+    path: "{{ asset_path }}"
+    follow: false
+  loop:
+    - "{{ desktop_shell_noctalia_preflight_config_source }}"
+    - "{{ desktop_shell_noctalia_shell_candidate_source }}"
+  loop_control:
+    loop_var: asset_path
+  register: desktop_shell_noctalia_asset_states
+  changed_when: false
+
+- name: Validate Noctalia staged configuration read-only
+  ansible.builtin.command: noctalia config validate
+  environment:
+    XDG_CONFIG_HOME: "{{ dotfiles_root }}/config/user"
+    XDG_STATE_HOME: "{{ desktop_shell_noctalia_preflight_state_home }}"
+  register: desktop_shell_noctalia_config_validation
+  changed_when: false
+
+- name: Discover Noctalia IPC commands
+  ansible.builtin.command: noctalia msg --help
+  register: desktop_shell_noctalia_ipc_help
+  changed_when: false
+
+- name: Assert staged assets and required IPC surface
+  ansible.builtin.assert:
+    that:
+      - desktop_shell_noctalia_asset_states.results | map(attribute='stat.exists') | list is all
+      - desktop_shell_noctalia_config_validation.rc == 0
+      - "'panel-toggle' in desktop_shell_noctalia_ipc_help.stdout"
+      - "'clipboard' in desktop_shell_noctalia_ipc_help.stdout"
+      - "'session' in desktop_shell_noctalia_ipc_help.stdout"
+      - "'notification' in desktop_shell_noctalia_ipc_help.stdout"
+    fail_msg: Noctalia staged assets or IPC contract is incomplete
+
+- name: Assert Noctalia invariants remain disabled
+  ansible.builtin.assert:
+    that:
+      - lookup('ansible.builtin.file', desktop_shell_noctalia_preflight_config_source) is search('(?m)^\[idle\.behavior\.lock\]\s+enabled\s*=\s*false')
+      - lookup('ansible.builtin.file', desktop_shell_noctalia_preflight_config_source) is search('(?m)^\[idle\.behavior\.lock-and-suspend\]\s+enabled\s*=\s*false')
+      - lookup('ansible.builtin.file', desktop_shell_noctalia_preflight_config_source) is search('(?m)^\[idle\.behavior\.screen-off\]\s+enabled\s*=\s*false')
+      - lookup('ansible.builtin.file', desktop_shell_noctalia_preflight_config_source) is search('(?m)^\[lockscreen\]\s+enabled\s*=\s*false\s+lock_before_suspend\s*=\s*false')
+      - lookup('ansible.builtin.file', desktop_shell_noctalia_preflight_config_source) is search('(?m)^\[notification\]\s+enable_daemon\s*=\s*false')
+    fail_msg: Noctalia lock, idle, or notification daemon invariant is not disabled
+
+- name: Assert providers are mutually exclusive
+  ansible.builtin.assert:
+    that:
+      - >-
+        ((desktop_shell_noctalia_snapshot_processes.results |
+          selectattr('provider_process', 'in', ['waybar', 'walker', 'elephant', 'ags']) |
+          selectattr('rc', 'equalto', 0) | list | length) > 0) !=
+        ((desktop_shell_noctalia_snapshot_processes.results |
+          selectattr('provider_process', 'equalto', 'noctalia') |
+          selectattr('rc', 'equalto', 0) | list | length) > 0)
+    fail_msg: provider state is inconsistent; exactly one shell provider must be active
+
+- name: Assert session provider remains external
+  ansible.builtin.assert:
+    that:
+      - >-
+        (desktop_shell_noctalia_snapshot_processes.results |
+         selectattr('provider_process', 'equalto', 'hypridle') | selectattr('rc', 'equalto', 0) | list | length) >= 0
+      - >-
+        (desktop_shell_noctalia_snapshot_processes.results |
+         selectattr('provider_process', 'equalto', 'hyprlock') | selectattr('rc', 'equalto', 0) | list | length) >= 0
+    fail_msg: session provider state could not be inspected
