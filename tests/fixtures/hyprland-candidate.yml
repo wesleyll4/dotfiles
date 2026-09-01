@@ -44,7 +44,7 @@
         - hyprlock.conf
     - name: Materialize current Hyprland scripts in temporary home
       ansible.builtin.copy:
-        src: "{{ dotfiles_root }}/hypr/.config/hypr/scripts/"
+        src: "{{ dotfiles_root }}/config/user/hypr/candidate/actions/current/scripts/"
         dest: "{{ dotfiles_home }}/.config/hypr/scripts/"
         remote_src: true
         mode: preserve
@@ -55,9 +55,9 @@
         remote_src: true
         mode: preserve
       loop:
-        - { src: 'waybar/.config/waybar/', dest: 'waybar' }
-        - { src: 'walker/.config/walker/', dest: 'walker' }
-        - { src: 'elephant/.config/elephant/', dest: 'elephant' }
+        - { src: 'config/user/desktop-shell/current/waybar/', dest: 'waybar' }
+        - { src: 'config/user/desktop-shell/current/walker/', dest: 'walker' }
+        - { src: 'config/user/desktop-shell/current/elephant/', dest: 'elephant' }
     - name: Assert fixture roots are temporary
       ansible.builtin.assert:
         that:

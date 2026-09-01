@@ -83,10 +83,9 @@
       - entry_state.stat.exists | default(false)
       - (entry_state.stat.isreg | default(false)) or (entry_state.stat.islnk | default(false))
       - shell_entry.expected_source is match('^' + (dotfiles_root | regex_escape) + '(/|$)')
-      - shell_entry.legacy_source is match('^' + (dotfiles_root | regex_escape) + '(/|$)')
       - >-
         (entry_state.stat.islnk | default(false) and
-         entry_state.stat.lnk_source in [shell_entry.expected_source, shell_entry.legacy_source]) or
+         entry_state.stat.lnk_source == shell_entry.expected_source) or
         (entry_state.stat.isreg | default(false) and
          lookup('ansible.builtin.pipe', 'sha256sum ' + (shell_entry.expected_source | quote) + ' | cut -d" " -f1') == (entry_state.stat.checksum | default('')))
     fail_msg: "Unexpected or changed managed shell entry: {{ shell_entry.target }}"
