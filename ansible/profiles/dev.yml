@@ -9,8 +9,7 @@ cli_tools_link_mappings:
     legacy_sources: []
   - target: "{{ dotfiles_home }}/.config/mise/config.toml"
     expected_source: "{{ dotfiles_root }}/config/user/mise/config.toml"
-    legacy_sources:
-      - "{{ dotfiles_root }}/mise/.config/mise/config.toml"
+    legacy_sources: []
   - target: "{{ dotfiles_home }}/.config/yazi/keymap.toml"
     expected_source: "{{ dotfiles_root }}/config/user/yazi/keymap.toml"
     legacy_sources:

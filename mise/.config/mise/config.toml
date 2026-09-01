@@ -1,4 +1,0 @@
-[tools]
-dotnet = ["8", "9", "latest"]
-node = "lts"
-python = "latest"
