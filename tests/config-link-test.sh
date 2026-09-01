@@ -154,4 +154,24 @@ assert_link_target "$zsh_home/.zshrc" "$root/config/user/zsh/.zshrc"
 zsh_second_run=$(run_zsh_fixture)
 grep -F 'changed=0' <<<"$zsh_second_run" >/dev/null
 
+kitty_home="$fixture/kitty-home"
+mkdir -p "$kitty_home/.config/kitty"
+for kitty_entry in "One Dark.conf" current-theme.conf kitty.conf kitty.conf.bak; do
+    ln -s -- "$root/kitty/.config/kitty/$kitty_entry" "$kitty_home/.config/kitty/$kitty_entry"
+done
+
+run_kitty_fixture() {
+    ANSIBLE_CONFIG="$root/ansible/ansible.cfg" \
+        ansible-playbook "$root/tests/fixtures/terminal-kitty-link-adoption.yml" \
+        -e "dotfiles_root=$root" \
+        -e "dotfiles_home=$kitty_home"
+}
+
+run_kitty_fixture
+for kitty_entry in "One Dark.conf" current-theme.conf kitty.conf kitty.conf.bak; do
+    assert_link_target "$kitty_home/.config/kitty/$kitty_entry" "$root/config/user/kitty/$kitty_entry"
+done
+kitty_second_run=$(run_kitty_fixture)
+grep -F 'changed=0' <<<"$kitty_second_run" >/dev/null
+
 printf 'managed link adoption: ok\n'

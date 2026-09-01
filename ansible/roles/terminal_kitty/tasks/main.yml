@@ -1,0 +1,45 @@
+---
+- name: Assert Kitty package boundary remains empty
+  ansible.builtin.assert:
+    that:
+      - terminal_kitty_packages is sequence
+      - terminal_kitty_packages is not string
+      - terminal_kitty_packages | length == 0
+    fail_msg: terminal_kitty_packages must remain an empty list in this migration
+
+- name: Inspect Kitty runtime directory
+  ansible.builtin.stat:
+    path: "{{ terminal_kitty_target }}"
+    follow: false
+  register: terminal_kitty_target_state
+
+- name: Require existing Kitty runtime directory
+  ansible.builtin.assert:
+    that:
+      - terminal_kitty_target_state.stat.exists | default(false)
+      - terminal_kitty_target_state.stat.isdir | default(false)
+      - not (terminal_kitty_target_state.stat.islnk | default(false))
+    fail_msg: Kitty runtime target must remain an existing real directory
+
+- name: Assert Kitty entry mappings are complete
+  ansible.builtin.assert:
+    that:
+      - terminal_kitty_entry.name is defined
+      - terminal_kitty_entry.expected_source is defined
+      - terminal_kitty_entry.legacy_sources is defined
+      - terminal_kitty_entry.legacy_sources is sequence
+      - terminal_kitty_entry.legacy_sources is not string
+    fail_msg: each Kitty entry requires name, expected_source, and legacy_sources
+  loop: "{{ terminal_kitty_entries }}"
+  loop_control:
+    loop_var: terminal_kitty_entry
+
+- name: Adopt Kitty runtime entries conservatively
+  ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
+  loop: "{{ terminal_kitty_entries }}"
+  loop_control:
+    loop_var: terminal_kitty_entry
+  vars:
+    managed_link_target: "{{ terminal_kitty_target }}/{{ terminal_kitty_entry.name }}"
+    managed_link_expected_source: "{{ terminal_kitty_entry.expected_source }}"
+    managed_link_legacy_sources: "{{ terminal_kitty_entry.legacy_sources }}"

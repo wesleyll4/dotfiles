@@ -1,0 +1,27 @@
+---
+- name: Exercise staged Kitty entry adoption
+  hosts: local
+  gather_facts: false
+  vars:
+    terminal_kitty_target: "{{ dotfiles_home }}/.config/kitty"
+    terminal_kitty_entries:
+      - name: "One Dark.conf"
+        expected_source: "{{ dotfiles_root }}/config/user/kitty/One Dark.conf"
+        legacy_sources:
+          - "{{ dotfiles_root }}/kitty/.config/kitty/One Dark.conf"
+      - name: current-theme.conf
+        expected_source: "{{ dotfiles_root }}/config/user/kitty/current-theme.conf"
+        legacy_sources:
+          - "{{ dotfiles_root }}/kitty/.config/kitty/current-theme.conf"
+      - name: kitty.conf
+        expected_source: "{{ dotfiles_root }}/config/user/kitty/kitty.conf"
+        legacy_sources:
+          - "{{ dotfiles_root }}/kitty/.config/kitty/kitty.conf"
+      - name: kitty.conf.bak
+        expected_source: "{{ dotfiles_root }}/config/user/kitty/kitty.conf.bak"
+        legacy_sources:
+          - "{{ dotfiles_root }}/kitty/.config/kitty/kitty.conf.bak"
+  tasks:
+    - name: Apply staged Kitty entry mappings
+      ansible.builtin.include_role:
+        name: terminal_kitty

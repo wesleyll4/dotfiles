@@ -22,6 +22,8 @@ for path in \
     ansible/roles/cli_tools/tasks/main.yml \
     ansible/roles/shell_zsh/defaults/main.yml \
     ansible/roles/shell_zsh/tasks/main.yml \
+    ansible/roles/terminal_kitty/defaults/main.yml \
+    ansible/roles/terminal_kitty/tasks/main.yml \
     ansible/roles/platform_arch/tasks/main.yml \
     ansible/roles/packages/defaults/main.yml \
     ansible/roles/packages/tasks/main.yml \
