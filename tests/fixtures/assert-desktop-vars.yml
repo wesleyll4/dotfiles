@@ -23,3 +23,5 @@
           - desktop_session_packages is sequence
           - desktop_shell_packages is sequence
           - desktop_actions_packages is sequence
+          - "'cli_tools' in profile_roles"
+          - cli_tools_link_mappings | length == 3

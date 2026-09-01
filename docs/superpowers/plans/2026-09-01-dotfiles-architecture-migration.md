@@ -259,11 +259,11 @@ managed_link_target: /absolute/runtime/target
 
 - Modify: cli_tools tasks, desktop/dev profile composition, README.md
 
-- [ ] Record current live targets and preflight each with expected/legacy contract.
-- [ ] Apply cli_tools role with dotfiles_home real HOME.
-- [ ] Verify Starship, Mise, Yazi links and behavior.
-- [ ] Run profile twice and require no changes.
-- [ ] Commit: feat: cut over CLI tool runtime links.
+- [x] Record current live targets and preflight each with expected/legacy contract.
+- [x] Apply cli_tools role with dotfiles_home real HOME.
+- [x] Verify Starship, Mise, Yazi links and behavior.
+- [x] Run profile twice and require no changes.
+- [x] Commit: feat: cut over CLI tool runtime links.
 
 **Validation:** all runtime links target staged source; second run unchanged.
 

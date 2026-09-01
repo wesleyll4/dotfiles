@@ -10,5 +10,7 @@
   tasks:
     - name: Compose selected development roles
       ansible.builtin.include_role:
-        name: "{{ item }}"
+        name: "{{ profile_role }}"
       loop: "{{ profile_roles }}"
+      loop_control:
+        loop_var: profile_role

@@ -1,3 +1,18 @@
 dotfiles_profile_name: desktop
 profile_roles:
   - common
+  - cli_tools
+
+cli_tools_link_mappings:
+  - target: "{{ dotfiles_home }}/.config/starship.toml"
+    expected_source: "{{ dotfiles_root }}/config/user/starship/starship.toml"
+    legacy_sources:
+      - "{{ dotfiles_root }}/starship/.config/starship.toml"
+  - target: "{{ dotfiles_home }}/.config/mise/config.toml"
+    expected_source: "{{ dotfiles_root }}/config/user/mise/config.toml"
+    legacy_sources:
+      - "{{ dotfiles_root }}/mise/.config/mise/config.toml"
+  - target: "{{ dotfiles_home }}/.config/yazi/keymap.toml"
+    expected_source: "{{ dotfiles_root }}/config/user/yazi/keymap.toml"
+    legacy_sources:
+      - "{{ dotfiles_root }}/yazi/.config/yazi/keymap.toml"
