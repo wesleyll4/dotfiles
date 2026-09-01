@@ -1,0 +1,4 @@
+dotfiles_managed_integration_slots:
+  - session.lua
+  - shell.lua
+  - apps.lua

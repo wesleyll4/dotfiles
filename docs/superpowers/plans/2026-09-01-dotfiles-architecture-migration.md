@@ -133,14 +133,14 @@ ansible/profiles/workstation.yml and ansible/profiles/dev.yml define dotfiles_pr
 - Create: docs/inspirations/README.md
 - Modify: .gitignore, README.md
 
-- [ ] Write structure test for every required file and bootstrap executable.
-- [ ] Write bootstrap-context test that calls bootstrap from a temporary unrelated current directory with DOTFILES_BOOTSTRAP_DRY_RUN=1 and asserts output contains the canonical ANSIBLE_CONFIG, absolute playbook, dotfiles_root, and fixture dotfiles_home.
-- [ ] Implement bootstrap help, workstation/dev selection, --check, and dry run. Real mode may install only Ansible when ansible-playbook is absent.
-- [ ] Define empty requirements lists: collections: [] and roles: [].
-- [ ] Implement common preflight assertions for absolute dotfiles_root and dotfiles_home.
-- [ ] Document ignored local secret input policy and inspirations fields; add only matching ignore patterns.
-- [ ] Run bash syntax, structure test, and bootstrap context test.
-- [ ] Commit: feat: add Ansible bootstrap and skeleton.
+- [x] Write structure test for every required file and bootstrap executable.
+- [x] Write bootstrap-context test that calls bootstrap from a temporary unrelated current directory with DOTFILES_BOOTSTRAP_DRY_RUN=1 and asserts output contains the canonical ANSIBLE_CONFIG, absolute playbook, dotfiles_root, and fixture dotfiles_home.
+- [x] Implement bootstrap help, workstation/dev selection, --check, and dry run. Real mode may install only Ansible when ansible-playbook is absent.
+- [x] Define empty requirements lists: collections: [] and roles: [].
+- [x] Implement common preflight assertions for absolute dotfiles_root and dotfiles_home.
+- [x] Document ignored local secret input policy and inspirations fields; add only matching ignore patterns.
+- [x] Run bash syntax, structure test, and bootstrap context test.
+- [x] Commit: feat: add Ansible bootstrap and skeleton.
 
 **Validation:** dry run makes no package, HOME, or service change.
 

@@ -1,0 +1,10 @@
+- name: Provision development profile
+  hosts: local
+  gather_facts: true
+  vars_files:
+    - ../profiles/dev.yml
+  tasks:
+    - name: Compose selected development roles
+      ansible.builtin.include_role:
+        name: "{{ item }}"
+      loop: "{{ profile_roles }}"

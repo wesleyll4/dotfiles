@@ -1,0 +1,14 @@
+---
+- name: Assert dotfiles execution context
+  ansible.builtin.assert:
+    that:
+      - dotfiles_root is match('^/')
+      - dotfiles_home is match('^/')
+      - dotfiles_root is directory
+      - dotfiles_home is directory
+    fail_msg: dotfiles_root and dotfiles_home must be existing absolute directories
+
+- name: Report common role boundary
+  ansible.builtin.debug:
+    msg: common role has no managed runtime state yet
+    verbosity: 1

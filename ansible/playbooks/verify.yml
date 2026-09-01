@@ -1,0 +1,9 @@
+- name: Verify profile fixture inputs
+  hosts: local
+  gather_facts: false
+  tasks:
+    - name: Verify fixture mode is explicit
+      ansible.builtin.assert:
+        that:
+          - dotfiles_root is defined
+          - dotfiles_home is defined

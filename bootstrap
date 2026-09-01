@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+profile=workstation
+check_mode=0
+
+usage() {
+    printf 'usage: %s [workstation|dev] [--check]\n' "$0"
+}
+
+while (($#)); do
+    case $1 in
+        workstation|dev)
+            profile=$1
+            ;;
+        --check)
+            check_mode=1
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            usage >&2
+            exit 2
+            ;;
+    esac
+    shift
+done
+
+target_home=${DOTFILES_TARGET_HOME:-${HOME:?}}
+dotfiles_home=$(realpath -e -- "$target_home")
+[[ $dotfiles_home == /* && -d $dotfiles_home ]] || {
+    printf 'error: DOTFILES_TARGET_HOME must be an existing absolute directory\n' >&2
+    exit 1
+}
+
+[[ -r /etc/os-release ]] || {
+    printf 'error: cannot read /etc/os-release\n' >&2
+    exit 1
+}
+# shellcheck disable=SC1091
+. /etc/os-release
+[[ ${ID:-} == arch ]] || {
+    printf 'error: this bootstrap currently supports Arch Linux only\n' >&2
+    exit 1
+}
+
+export ANSIBLE_CONFIG="$repo_root/ansible/ansible.cfg"
+playbook="$repo_root/ansible/playbooks/$profile.yml"
+command=(ansible-playbook "$playbook" -e "dotfiles_root=$repo_root" -e "dotfiles_home=$dotfiles_home")
+((check_mode)) && command+=(--check)
+
+if [[ ${DOTFILES_BOOTSTRAP_DRY_RUN:-0} == 1 ]]; then
+    printf 'ANSIBLE_CONFIG=%s\n' "$ANSIBLE_CONFIG"
+    printf 'dotfiles_root=%s\n' "$repo_root"
+    printf 'dotfiles_home=%s\n' "$dotfiles_home"
+    if ! command -v ansible-playbook >/dev/null; then
+        printf 'sudo pacman -S --needed ansible\n'
+    fi
+    printf '%q ' "${command[@]}"
+    printf '\n'
+    exit 0
+fi
+
+if ! command -v ansible-playbook >/dev/null; then
+    sudo pacman -S --needed ansible
+fi
+
+exec "${command[@]}"

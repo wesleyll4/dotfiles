@@ -1,0 +1,3 @@
+dotfiles_profile_name: workstation
+profile_roles:
+  - common
