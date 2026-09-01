@@ -18,6 +18,7 @@
       - "{{ dotfiles_root }}"
   register: managed_link_dotfiles_root
   changed_when: false
+  check_mode: false
 
 - name: Resolve dotfiles home canonically
   ansible.builtin.command:
@@ -27,6 +28,7 @@
       - "{{ dotfiles_home }}"
   register: managed_link_dotfiles_home
   changed_when: false
+  check_mode: false
 
 - name: Assert canonical execution roots
   ansible.builtin.assert:
@@ -48,6 +50,7 @@
   loop: "{{ managed_link_sources }}"
   register: managed_link_resolved_sources
   changed_when: false
+  check_mode: false
 
 - name: Assert canonical sources remain inside the repository
   ansible.builtin.assert:
@@ -66,6 +69,7 @@
       - "{{ managed_link_target | dirname }}"
   register: managed_link_target_parent
   changed_when: false
+  check_mode: false
 
 - name: Assert canonical target location is inside dotfiles_home
   ansible.builtin.assert:
@@ -89,6 +93,7 @@
   register: managed_link_resolved_target
   changed_when: false
   failed_when: false
+  check_mode: false
   when: managed_link_target_state.stat.islnk | default(false)
 
 - name: Assert managed-link target is absent or explicitly approved
