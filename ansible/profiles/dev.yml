@@ -4,6 +4,7 @@ profile_roles:
   - cli_tools
   - shell_zsh
   - terminal_kitty
+  - development
 
 cli_tools_link_mappings:
   - target: "{{ dotfiles_home }}/.config/starship.toml"

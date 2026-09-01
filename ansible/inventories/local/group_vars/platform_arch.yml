@@ -2,6 +2,7 @@
 dotfiles_platform_name: arch
 
 cli_tools_packages: []
+# Native Arch names only; AUR, Flatpak, and user-managed runtimes stay outside.
 development_packages: []
 terminal_packages: []
 shell_packages: []

@@ -24,6 +24,11 @@ for path in \
     ansible/roles/shell_zsh/tasks/main.yml \
     ansible/roles/terminal_kitty/defaults/main.yml \
     ansible/roles/terminal_kitty/tasks/main.yml \
+    ansible/roles/development/defaults/main.yml \
+    ansible/roles/development/tasks/main.yml \
+    docs/decisions/current-tools.md \
+    docs/decisions/development-and-gaming-scope.md \
+    docs/package-inventory-arch.md \
     ansible/roles/platform_arch/tasks/main.yml \
     ansible/roles/packages/defaults/main.yml \
     ansible/roles/packages/tasks/main.yml \

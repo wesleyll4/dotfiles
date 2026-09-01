@@ -343,10 +343,10 @@ real runtime directory; migration is performed entry-by-entry.
 - Create: docs/package-inventory-arch.md
 - Modify: profiles and platform_arch.yml
 
-- [ ] Document current/default and undecided status of Kitty, Zsh, Waybar, Walker.
-- [ ] Development consumes development_packages empty list.
-- [ ] Record repository command candidates and pacman ownership one approved command at a time.
-- [ ] Separate native, AUR, Flatpak, and unknown sources.
+- [x] Document current/default and undecided status of Kitty, Zsh, Waybar, Walker.
+- [x] Development consumes development_packages empty list.
+- [x] Record repository command candidates and pacman ownership one approved command at a time.
+- [x] Separate native, AUR, Flatpak, and unknown sources.
 - [ ] Present inventory for explicit approval before list population.
 - [ ] Commit structural boundary. Package-list population and real package run occur only after explicit review in a separate commit.
 

@@ -27,3 +27,5 @@
           - cli_tools_link_mappings | length == 3
           - "'shell_zsh' in profile_roles"
           - shell_zsh_packages | length == 0
+          - "'development' in profile_roles"
+          - development_packages | length == 0

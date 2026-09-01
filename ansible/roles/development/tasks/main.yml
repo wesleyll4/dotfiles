@@ -1,0 +1,15 @@
+---
+- name: Assert development package boundary is an explicit list
+  ansible.builtin.assert:
+    that:
+      - development_packages is sequence
+      - development_packages is not string
+      - development_packages | length == 0
+    fail_msg: development_packages must remain empty until the inventory is reviewed
+
+- name: Keep development package installation behind the reviewed boundary
+  ansible.builtin.include_role:
+    name: packages
+  vars:
+    package_names: "{{ development_packages }}"
+  when: development_packages | length > 0
