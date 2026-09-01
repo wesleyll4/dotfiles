@@ -1,0 +1,24 @@
+# Declarative Noctalia v5 provider configuration.
+# Session locking and idle actions remain owned by desktop_session_current.
+
+[idle.behavior.lock]
+enabled = false
+
+[idle.behavior.lock-and-suspend]
+enabled = false
+
+[idle.behavior.screen-off]
+enabled = false
+
+[lockscreen]
+enabled = false
+lock_before_suspend = false
+
+[notification]
+enable_daemon = false
+
+[wallpaper]
+enabled = false
+
+[wallpaper.automation]
+enabled = false
