@@ -1,0 +1,10 @@
+---
+dotfiles_profile_name: desktop-noctalia
+profile_roles:
+  - common
+  - cli_tools
+  - shell_zsh
+  - terminal_kitty
+  - desktop_session_current
+  - desktop_shell_noctalia
+  - desktop_actions_current

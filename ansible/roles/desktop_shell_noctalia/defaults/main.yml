@@ -1,0 +1,32 @@
+---
+desktop_shell_noctalia_declarative_root: "{{ dotfiles_root }}/config/user/desktop-shell/noctalia"
+desktop_shell_noctalia_shell_candidate_source: "{{ dotfiles_root }}/config/user/hypr/candidate/shell/noctalia/shell.lua"
+desktop_shell_noctalia_runtime_root: "{{ dotfiles_home }}/.config/noctalia"
+desktop_shell_noctalia_binary: noctalia
+desktop_shell_noctalia_validation_command: "noctalia config validate"
+desktop_shell_noctalia_capabilities:
+  - bar_panels
+  - launcher
+  - clipboard_ui
+  - notifications
+  - menus
+  - power_session_ui
+  - tray_osd
+
+desktop_shell_noctalia_external_owners:
+  - hypridle
+  - hyprlock
+  - terminal
+  - browser
+  - file_manager
+  - screenshot
+  - hyprland_core
+  - greetd_regreet
+
+desktop_shell_noctalia_invariants:
+  idle.behavior.lock.enabled: false
+  idle.behavior.lock-and-suspend.enabled: false
+  idle.behavior.screen-off.enabled: false
+  lockscreen.enabled: false
+  lockscreen.lock_before_suspend: false
+  notification.enable_daemon: false

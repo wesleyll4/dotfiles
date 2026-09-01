@@ -6,12 +6,12 @@ profile=desktop
 check_mode=0
 
 usage() {
-    printf 'usage: %s [desktop|dev] [--check]\n' "$0"
+    printf 'usage: %s [desktop|desktop-noctalia|dev] [--check]\n' "$0"
 }
 
 while (($#)); do
     case $1 in
-        desktop|dev)
+        desktop|desktop-noctalia|dev)
             profile=$1
             ;;
         --check)

@@ -1,0 +1,42 @@
+---
+- name: Assert Noctalia provider scaffold contract
+  ansible.builtin.assert:
+    that:
+      - desktop_shell_noctalia_declarative_root is match('^' + (dotfiles_root | regex_escape) + '(/|$)')
+      - desktop_shell_noctalia_shell_candidate_source is match('^' + (dotfiles_root | regex_escape) + '(/|$)')
+      - desktop_shell_noctalia_runtime_root == dotfiles_home + '/.config/noctalia'
+      - desktop_shell_noctalia_binary == 'noctalia'
+      - desktop_shell_noctalia_validation_command == 'noctalia config validate'
+      - desktop_shell_noctalia_packages is sequence
+      - desktop_shell_noctalia_capabilities is sequence
+      - desktop_shell_noctalia_external_owners is sequence
+      - desktop_shell_noctalia_invariants['idle.behavior.lock.enabled'] == false
+      - desktop_shell_noctalia_invariants['idle.behavior.lock-and-suspend.enabled'] == false
+      - desktop_shell_noctalia_invariants['idle.behavior.screen-off.enabled'] == false
+      - desktop_shell_noctalia_invariants['lockscreen.enabled'] == false
+      - desktop_shell_noctalia_invariants['lockscreen.lock_before_suspend'] == false
+      - desktop_shell_noctalia_invariants['notification.enable_daemon'] == false
+    fail_msg: Noctalia provider scaffold contract is incomplete or unsafe
+
+- name: Assert Noctalia provider has no session/action ownership
+  ansible.builtin.assert:
+    that:
+      - "'hypridle' in desktop_shell_noctalia_external_owners"
+      - "'hyprlock' in desktop_shell_noctalia_external_owners"
+      - "'terminal' in desktop_shell_noctalia_external_owners"
+      - "'browser' in desktop_shell_noctalia_external_owners"
+      - "'file_manager' in desktop_shell_noctalia_external_owners"
+      - "'screenshot' in desktop_shell_noctalia_external_owners"
+      - "'hyprland_core' in desktop_shell_noctalia_external_owners"
+      - "'greetd_regreet' in desktop_shell_noctalia_external_owners"
+    fail_msg: Noctalia provider must not absorb existing session, actions, compositor, or greeter ownership
+
+- name: Report inactive Noctalia provider boundary
+  ansible.builtin.debug:
+    msg:
+      declarative_root: "{{ desktop_shell_noctalia_declarative_root }}"
+      shell_candidate_source: "{{ desktop_shell_noctalia_shell_candidate_source }}"
+      runtime_root: "{{ desktop_shell_noctalia_runtime_root }}"
+      validation: "{{ desktop_shell_noctalia_validation_command }}"
+      status: inactive_scaffold
+    verbosity: 1
