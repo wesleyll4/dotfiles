@@ -138,4 +138,20 @@ assert_link_target "$cli_home/.config/yazi/keymap.toml" "$root/config/user/yazi/
 cli_second_run=$(run_cli_fixture)
 grep -F 'changed=0' <<<"$cli_second_run" >/dev/null
 
+zsh_home="$fixture/zsh-home"
+mkdir -p "$zsh_home"
+ln -s -- "$root/zsh/.zshrc" "$zsh_home/.zshrc"
+
+run_zsh_fixture() {
+    ANSIBLE_CONFIG="$root/ansible/ansible.cfg" \
+        ansible-playbook "$root/tests/fixtures/zsh-link-adoption.yml" \
+        -e "dotfiles_root=$root" \
+        -e "dotfiles_home=$zsh_home"
+}
+
+run_zsh_fixture
+assert_link_target "$zsh_home/.zshrc" "$root/config/user/zsh/.zshrc"
+zsh_second_run=$(run_zsh_fixture)
+grep -F 'changed=0' <<<"$zsh_second_run" >/dev/null
+
 printf 'managed link adoption: ok\n'

@@ -25,3 +25,5 @@
           - desktop_actions_packages is sequence
           - "'cli_tools' in profile_roles"
           - cli_tools_link_mappings | length == 3
+          - "'shell_zsh' in profile_roles"
+          - shell_zsh_packages | length == 0

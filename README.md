@@ -12,7 +12,8 @@ O entrypoint arquitetural é `./bootstrap`:
 Ele calcula a raiz do checkout, exporta o `ANSIBLE_CONFIG` do repositório e
 injeta `dotfiles_root` e `dotfiles_home` no playbook selecionado. Nesta fase,
 ele instala somente o Ansible se ainda não estiver disponível. Os profiles
-`desktop` e `dev` também gerenciam os links atuais de Starship, Mise e Yazi.
+`desktop` e `dev` também gerenciam os links atuais de Starship, Mise, Yazi e
+Zsh.
 
 Depois que o Ansible estiver disponível, valide o contrato de execução a partir
 de qualquer diretório com:

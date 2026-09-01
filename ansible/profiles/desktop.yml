@@ -2,6 +2,7 @@ dotfiles_profile_name: desktop
 profile_roles:
   - common
   - cli_tools
+  - shell_zsh
 
 cli_tools_link_mappings:
   - target: "{{ dotfiles_home }}/.config/starship.toml"
@@ -13,3 +14,8 @@ cli_tools_link_mappings:
   - target: "{{ dotfiles_home }}/.config/yazi/keymap.toml"
     expected_source: "{{ dotfiles_root }}/config/user/yazi/keymap.toml"
     legacy_sources: []
+
+shell_zsh_expected_source: "{{ dotfiles_root }}/config/user/zsh/.zshrc"
+shell_zsh_legacy_sources:
+  - "{{ dotfiles_root }}/zsh/.zshrc"
+shell_zsh_packages: []

@@ -20,6 +20,8 @@ for path in \
     ansible/roles/common/tasks/adopt_link.yml \
     ansible/roles/cli_tools/defaults/main.yml \
     ansible/roles/cli_tools/tasks/main.yml \
+    ansible/roles/shell_zsh/defaults/main.yml \
+    ansible/roles/shell_zsh/tasks/main.yml \
     ansible/roles/platform_arch/tasks/main.yml \
     ansible/roles/packages/defaults/main.yml \
     ansible/roles/packages/tasks/main.yml \

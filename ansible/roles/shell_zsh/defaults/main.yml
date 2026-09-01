@@ -1,0 +1,5 @@
+---
+shell_zsh_packages: []
+shell_zsh_target: "{{ dotfiles_home }}/.zshrc"
+shell_zsh_expected_source: ''
+shell_zsh_legacy_sources: []

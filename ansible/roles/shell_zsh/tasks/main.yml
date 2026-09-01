@@ -1,0 +1,15 @@
+---
+- name: Assert current Zsh package boundary remains empty
+  ansible.builtin.assert:
+    that:
+      - shell_zsh_packages is sequence
+      - shell_zsh_packages is not string
+      - shell_zsh_packages | length == 0
+    fail_msg: shell_zsh_packages must remain an empty list in this migration
+
+- name: Adopt current Zsh runtime link conservatively
+  ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
+  vars:
+    managed_link_target: "{{ shell_zsh_target }}"
+    managed_link_expected_source: "{{ shell_zsh_expected_source }}"
+    managed_link_legacy_sources: "{{ shell_zsh_legacy_sources }}"
