@@ -1,4 +1,11 @@
 ---
+- name: Install reviewed CLI-tool packages
+  ansible.builtin.include_role:
+    name: packages
+  vars:
+    package_names: "{{ cli_tools_packages }}"
+  when: cli_tools_packages | length > 0
+
 - name: Assert CLI-tool link mappings are a list
   ansible.builtin.assert:
     that:

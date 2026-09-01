@@ -28,4 +28,5 @@
           - "'shell_zsh' in profile_roles"
           - shell_zsh_packages | length == 0
           - "'development' in profile_roles"
-          - development_packages | length == 0
+          - development_packages == ['git', 'github-cli', 'neovim', 'docker', 'docker-compose', 'docker-buildx']
+          - cli_tools_packages == ['ripgrep', 'fd', 'bat']

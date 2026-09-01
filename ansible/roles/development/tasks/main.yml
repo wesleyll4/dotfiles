@@ -4,8 +4,7 @@
     that:
       - development_packages is sequence
       - development_packages is not string
-      - development_packages | length == 0
-    fail_msg: development_packages must remain empty until the inventory is reviewed
+    fail_msg: development_packages must be an explicit reviewed native-package list
 
 - name: Keep development package installation behind the reviewed boundary
   ansible.builtin.include_role:

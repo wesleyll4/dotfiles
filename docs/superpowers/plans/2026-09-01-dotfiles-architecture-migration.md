@@ -347,8 +347,8 @@ real runtime directory; migration is performed entry-by-entry.
 - [x] Development consumes development_packages empty list.
 - [x] Record repository command candidates and pacman ownership one approved command at a time.
 - [x] Separate native, AUR, Flatpak, and unknown sources.
-- [ ] Present inventory for explicit approval before list population.
-- [ ] Commit structural boundary. Package-list population and real package run occur only after explicit review in a separate commit.
+- [x] Present inventory for explicit approval before list population.
+- [x] Commit structural boundary. Package-list population and real package run occur only after explicit review in a separate commit.
 
 **Validation:** development check mode has no package action before reviewed lists exist.
 

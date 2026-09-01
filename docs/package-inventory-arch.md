@@ -1,7 +1,26 @@
 # Arch package inventory (Task 11)
 
-This is an inventory of observed software, not an installation manifest. Empty
-Ansible lists remain intentional until each candidate is reviewed.
+Inventário observado não é manifesto gerenciado. Este documento registra o que
+foi encontrado; somente as listas Ansible aprovadas abaixo são gerenciadas.
+
+## Manifesto nativo atualmente gerenciado
+
+```yaml
+cli_tools_packages:
+  - ripgrep
+  - fd
+  - bat
+
+development_packages:
+  - git
+  - github-cli
+  - neovim
+  - docker
+  - docker-compose
+  - docker-buildx
+```
+
+Node.js nativo, .NET nativo, AUR, Flatpak e gaming permanecem fora do manifesto.
 
 ## Development boundary candidates
 
@@ -9,9 +28,9 @@ Ansible lists remain intentional until each candidate is reviewed.
 | --- | --- | --- | --- |
 | git | development/common | native Arch | `/usr/bin/git`, package `git` |
 | GitHub CLI | development | native Arch | explicit package `github-cli` |
-| ripgrep | development/CLI tooling | native Arch | `/usr/bin/rg`, package `ripgrep` |
-| fd | development/CLI tooling | native Arch | `/usr/bin/fd`, package `fd` |
-| bat | development/CLI tooling | native Arch | `/usr/bin/bat`, package `bat` |
+| ripgrep | cli_tools | native Arch | `/usr/bin/rg`, package `ripgrep` |
+| fd | cli_tools | native Arch | `/usr/bin/fd`, package `fd` |
+| bat | cli_tools | native Arch | `/usr/bin/bat`, package `bat` |
 | Neovim | development/editor | native Arch | `/usr/bin/nvim`, package `neovim` |
 | Node.js/npm | development/runtime | native package plus Mise-managed runtime | package `nodejs`; active runtime under `~/.local/share/mise` |
 | .NET | development/runtime | other/user-managed | active runtime under `~/.local/share/mise/dotnet-root` |

@@ -1,9 +1,18 @@
 ---
 dotfiles_platform_name: arch
 
-cli_tools_packages: []
+cli_tools_packages:
+  - ripgrep
+  - fd
+  - bat
 # Native Arch names only; AUR, Flatpak, and user-managed runtimes stay outside.
-development_packages: []
+development_packages:
+  - git
+  - github-cli
+  - neovim
+  - docker
+  - docker-compose
+  - docker-buildx
 terminal_packages: []
 shell_packages: []
 desktop_hyprland_packages: []
