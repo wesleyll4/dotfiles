@@ -1,26 +1,118 @@
 ---
-- name: Guarded Hyprland entrypoint cutover
+- name: Guard atomic Hyprland cutover transaction
   block:
-    - name: Adopt candidate Hyprland entrypoint
-      ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
-      vars:
-        managed_link_target: "{{ desktop_hyprland_live_entrypoint }}"
-        managed_link_expected_source: "{{ desktop_hyprland_candidate_entrypoint }}"
-        managed_link_legacy_sources:
-          - "{{ desktop_hyprland_legacy_entrypoint }}"
+    - name: Prepare Hyprland runtime directory
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.config/hypr"
+        state: directory
+        mode: '0755'
+
+    - name: Materialize candidate Hyprland core link
+      ansible.builtin.file:
+        src: "{{ dotfiles_root }}/config/user/hypr/candidate/core"
+        dest: "{{ dotfiles_home }}/.config/hypr/core"
+        state: link
+        follow: false
+
+    - name: Materialize candidate Hyprland integrations directory
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.config/hypr/integrations"
+        state: directory
+        mode: '0755'
+
+    - name: Materialize selected Hyprland integration slots
+      ansible.builtin.file:
+        src: "{{ integration_slot.source }}"
+        dest: "{{ dotfiles_home }}/.config/hypr/integrations/{{ integration_slot.name }}.lua"
+        state: link
+        follow: false
+      loop:
+        - { name: session, source: "{{ dotfiles_root }}/config/user/hypr/candidate/session/current/session.lua" }
+        - { name: shell, source: "{{ dotfiles_root }}/config/user/hypr/candidate/shell/current/shell.lua" }
+        - { name: apps, source: "{{ dotfiles_root }}/config/user/hypr/candidate/actions/current/apps.lua" }
+      loop_control:
+        loop_var: integration_slot
+
+    - name: Collect materialized Hyprland runtime asset states
+      ansible.builtin.stat:
+        path: "{{ runtime_asset }}"
+        follow: false
+      loop:
+        - "{{ dotfiles_home }}/.config/hypr/core"
+        - "{{ dotfiles_home }}/.config/hypr/integrations/session.lua"
+        - "{{ dotfiles_home }}/.config/hypr/integrations/shell.lua"
+        - "{{ dotfiles_home }}/.config/hypr/integrations/apps.lua"
+      loop_control:
+        loop_var: runtime_asset
+      register: desktop_hyprland_runtime_states
+
+    - name: Validate materialized Hyprland runtime assets
+      ansible.builtin.assert:
+        that:
+          - runtime_state.stat.islnk | default(false)
+          - runtime_state.stat.lnk_source is defined
+      loop: "{{ desktop_hyprland_runtime_states.results }}"
+      loop_control:
+        loop_var: runtime_state
+
+    - name: Allocate same-filesystem temporary entrypoint directory
+      ansible.builtin.tempfile:
+        path: "{{ dotfiles_home }}/.config/hypr"
+        state: directory
+        suffix: .hyprland-cutover
+      register: desktop_hyprland_entrypoint_temp_dir
+
+    - name: Prepare candidate entrypoint symlink in temporary directory
+      ansible.builtin.file:
+        src: "{{ desktop_hyprland_candidate_entrypoint }}"
+        dest: "{{ desktop_hyprland_entrypoint_temp_dir.path }}/hyprland.lua"
+        state: link
+        follow: false
+
+    - name: Replace Hyprland entrypoint atomically
+      ansible.builtin.command:
+        argv: [mv, -T, "{{ desktop_hyprland_entrypoint_temp_dir.path }}/hyprland.lua", "{{ desktop_hyprland_live_entrypoint }}"]
+      changed_when: true
+
+    - name: Validate live candidate after atomic replacement
+      ansible.builtin.command:
+        argv: [Hyprland, --verify-config, --config, "{{ desktop_hyprland_live_entrypoint }}"]
+      register: desktop_hyprland_candidate_live_check
+      changed_when: false
+      failed_when:
+        - desktop_hyprland_candidate_live_check.rc != 0
+        - "'config ok' not in desktop_hyprland_candidate_live_check.stdout"
 
   rescue:
-    - name: Restore legacy Hyprland entrypoint after failed cutover
+    - name: Remove newly materialized candidate integrations after failure
       ansible.builtin.file:
-        path: "{{ desktop_hyprland_live_entrypoint }}"
+        path: "{{ dotfiles_home }}/.config/hypr/integrations"
         state: absent
 
-    - name: Recreate recorded legacy Hyprland entrypoint
+    - name: Remove newly materialized candidate core after failure
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.config/hypr/core"
+        state: absent
+
+    - name: Allocate same-filesystem temporary rollback directory
+      ansible.builtin.tempfile:
+        path: "{{ dotfiles_home }}/.config/hypr"
+        state: directory
+        suffix: .hyprland-rollback
+      register: desktop_hyprland_rollback_temp_dir
+
+    - name: Prepare legacy entrypoint symlink for atomic rollback
       ansible.builtin.file:
         src: "{{ desktop_hyprland_legacy_entrypoint }}"
-        dest: "{{ desktop_hyprland_live_entrypoint }}"
+        dest: "{{ desktop_hyprland_rollback_temp_dir.path }}/hyprland.lua"
         state: link
+        follow: false
 
-    - name: Stop after restoring legacy Hyprland entrypoint
+    - name: Restore legacy entrypoint atomically
+      ansible.builtin.command:
+        argv: [mv, -T, "{{ desktop_hyprland_rollback_temp_dir.path }}/hyprland.lua", "{{ desktop_hyprland_live_entrypoint }}"]
+      changed_when: true
+
+    - name: Stop after atomic rollback
       ansible.builtin.fail:
-        msg: Hyprland cutover failed; legacy entrypoint was restored
+        msg: Hyprland candidate transaction failed; legacy entrypoint restored atomically

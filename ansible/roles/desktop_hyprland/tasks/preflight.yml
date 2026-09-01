@@ -6,6 +6,10 @@
     desktop_hyprland_candidate_entrypoint: "{{ dotfiles_root }}/config/user/hypr/candidate/hyprland.lua"
     desktop_hyprland_preflight_targets:
       - { name: entrypoint, target: "{{ dotfiles_home }}/.config/hypr/hyprland.lua", allowed_sources: ["{{ dotfiles_root }}/config/user/hypr/candidate/hyprland.lua", "{{ dotfiles_root }}/hypr/.config/hypr/hyprland.lua"] }
+      - { name: core, target: "{{ dotfiles_home }}/.config/hypr/core", allowed_sources: ["{{ dotfiles_root }}/config/user/hypr/candidate/core"] }
+      - { name: session_slot, target: "{{ dotfiles_home }}/.config/hypr/integrations/session.lua", allowed_sources: ["{{ dotfiles_root }}/config/user/hypr/candidate/session/current/session.lua", "{{ dotfiles_root }}/config/user/hypr/candidate/integrations/session.lua"] }
+      - { name: shell_slot, target: "{{ dotfiles_home }}/.config/hypr/integrations/shell.lua", allowed_sources: ["{{ dotfiles_root }}/config/user/hypr/candidate/shell/current/shell.lua", "{{ dotfiles_root }}/config/user/hypr/candidate/integrations/shell.lua"] }
+      - { name: apps_slot, target: "{{ dotfiles_home }}/.config/hypr/integrations/apps.lua", allowed_sources: ["{{ dotfiles_root }}/config/user/hypr/candidate/actions/current/apps.lua", "{{ dotfiles_root }}/config/user/hypr/candidate/integrations/apps.lua"] }
       - { name: idle, target: "{{ dotfiles_home }}/.config/hypr/hypridle.conf", allowed_sources: ["{{ dotfiles_root }}/hypr/.config/hypr/hypridle.conf"] }
       - { name: lock, target: "{{ dotfiles_home }}/.config/hypr/hyprlock.conf", allowed_sources: ["{{ dotfiles_root }}/hypr/.config/hypr/hyprlock.conf"] }
       - { name: lua, target: "{{ dotfiles_home }}/.config/hypr/lua", allowed_sources: ["{{ dotfiles_root }}/hypr/.config/hypr/lua"] }
