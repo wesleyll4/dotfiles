@@ -1,0 +1,10 @@
+---
+- name: Run read-only Hyprland preflight
+  ansible.builtin.include_tasks: preflight.yml
+
+- name: Stop after preflight when explicitly requested
+  ansible.builtin.meta: end_play
+  when: desktop_hyprland_preflight_only | default(false) | bool
+
+- name: Enter Hyprland mutation phase only after preflight
+  ansible.builtin.include_tasks: mutation.yml

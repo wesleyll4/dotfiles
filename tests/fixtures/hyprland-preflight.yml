@@ -1,0 +1,80 @@
+---
+- name: Prepare or validate an isolated Hyprland preflight fixture
+  hosts: local
+  gather_facts: false
+  vars:
+    fixture_hypr: "{{ dotfiles_home }}/.config/hypr"
+    fixture_target: "{{ fixture_hypr }}/hyprland.lua"
+  tasks:
+    - name: Create isolated Hyprland directory
+      ansible.builtin.file:
+        path: "{{ fixture_hypr }}"
+        state: directory
+        mode: '0755'
+      when: prepare_fixture | default(false) | bool
+
+    - name: Remove fixture entrypoint before preparing scenario
+      ansible.builtin.file:
+        path: "{{ fixture_target }}"
+        state: absent
+      when: prepare_fixture | default(false) | bool
+
+    - name: Create valid legacy fixture entrypoint
+      ansible.builtin.file:
+        src: "{{ dotfiles_root }}/hypr/.config/hypr/hyprland.lua"
+        dest: "{{ fixture_target }}"
+        state: link
+      when:
+        - prepare_fixture | default(false) | bool
+        - preflight_scenario | default('legacy') == 'legacy'
+
+    - name: Create valid expected fixture entrypoint
+      ansible.builtin.file:
+        src: "{{ dotfiles_root }}/config/user/hypr/candidate/hyprland.lua"
+        dest: "{{ fixture_target }}"
+        state: link
+      when:
+        - prepare_fixture | default(false) | bool
+        - preflight_scenario | default('legacy') == 'expected'
+
+    - name: Create unexpected fixture symlink
+      ansible.builtin.copy:
+        content: unexpected-source
+        dest: "{{ dotfiles_home }}/unexpected-source.lua"
+        mode: '0644'
+      when:
+        - prepare_fixture | default(false) | bool
+        - preflight_scenario | default('legacy') == 'unexpected'
+
+    - name: Link unexpected fixture symlink
+      ansible.builtin.file:
+        src: "{{ dotfiles_home }}/unexpected-source.lua"
+        dest: "{{ fixture_target }}"
+        state: link
+      when:
+        - prepare_fixture | default(false) | bool
+        - preflight_scenario | default('legacy') == 'unexpected'
+
+    - name: Create unexpected regular fixture file
+      ansible.builtin.copy:
+        content: preserved-fixture-content
+        dest: "{{ fixture_target }}"
+        mode: '0644'
+      when:
+        - prepare_fixture | default(false) | bool
+        - preflight_scenario | default('legacy') == 'regular'
+
+    - name: Create unexpected fixture directory
+      ansible.builtin.file:
+        path: "{{ fixture_target }}"
+        state: directory
+        mode: '0755'
+      when:
+        - prepare_fixture | default(false) | bool
+        - preflight_scenario | default('legacy') == 'directory'
+
+    - name: Run only the read-only Hyprland preflight
+      ansible.builtin.include_role:
+        name: desktop_hyprland
+        tasks_from: preflight
+      when: not (prepare_fixture | default(false) | bool)

@@ -1,0 +1,57 @@
+---
+- name: Define Hyprland preflight paths
+  ansible.builtin.set_fact:
+    desktop_hyprland_live_entrypoint: "{{ dotfiles_home }}/.config/hypr/hyprland.lua"
+    desktop_hyprland_legacy_entrypoint: "{{ dotfiles_root }}/hypr/.config/hypr/hyprland.lua"
+    desktop_hyprland_candidate_entrypoint: "{{ dotfiles_root }}/config/user/hypr/candidate/hyprland.lua"
+    desktop_hyprland_preflight_targets:
+      - { name: entrypoint, target: "{{ dotfiles_home }}/.config/hypr/hyprland.lua", allowed_sources: ["{{ dotfiles_root }}/config/user/hypr/candidate/hyprland.lua", "{{ dotfiles_root }}/hypr/.config/hypr/hyprland.lua"] }
+      - { name: idle, target: "{{ dotfiles_home }}/.config/hypr/hypridle.conf", allowed_sources: ["{{ dotfiles_root }}/hypr/.config/hypr/hypridle.conf"] }
+      - { name: lock, target: "{{ dotfiles_home }}/.config/hypr/hyprlock.conf", allowed_sources: ["{{ dotfiles_root }}/hypr/.config/hypr/hyprlock.conf"] }
+      - { name: lua, target: "{{ dotfiles_home }}/.config/hypr/lua", allowed_sources: ["{{ dotfiles_root }}/hypr/.config/hypr/lua"] }
+      - { name: scripts, target: "{{ dotfiles_home }}/.config/hypr/scripts", allowed_sources: ["{{ dotfiles_root }}/hypr/.config/hypr/scripts"] }
+
+- name: Snapshot live Hyprland targets without following links
+  ansible.builtin.stat:
+    path: "{{ preflight_target.target }}"
+    follow: false
+  loop: "{{ desktop_hyprland_preflight_targets }}"
+  loop_control:
+    loop_var: preflight_target
+  register: desktop_hyprland_preflight_states
+
+- name: Resolve existing live Hyprland symlinks read-only
+  ansible.builtin.command:
+    argv: [realpath, --canonicalize-existing, "{{ preflight_state.preflight_target.target }}"]
+  loop: "{{ desktop_hyprland_preflight_states.results }}"
+  loop_control:
+    loop_var: preflight_state
+  register: desktop_hyprland_preflight_resolved
+  changed_when: false
+  check_mode: false
+  failed_when: false
+  when: preflight_state.stat.islnk | default(false)
+
+- name: Assert live Hyprland targets are approved states
+  ansible.builtin.assert:
+    that:
+      - >-
+        (not (preflight_state.stat.exists | default(false)) and
+         not (preflight_state.stat.islnk | default(false))) or
+        ((preflight_state.stat.islnk | default(false)) and
+         (desktop_hyprland_preflight_resolved.results |
+          selectattr('preflight_state.preflight_target.name', 'equalto', preflight_state.preflight_target.name) |
+          map(attribute='stdout') | first | default('')) in preflight_state.preflight_target.allowed_sources)
+    fail_msg: live Hyprland target is not absent, expected, or an approved legacy link
+  loop: "{{ desktop_hyprland_preflight_states.results }}"
+  loop_control:
+    loop_var: preflight_state
+
+- name: Validate candidate entrypoint read-only
+  ansible.builtin.command:
+    argv: [Hyprland, --verify-config, --config, "{{ desktop_hyprland_candidate_entrypoint }}"]
+  register: desktop_hyprland_candidate_check
+  changed_when: false
+  failed_when:
+    - desktop_hyprland_candidate_check.rc != 0
+    - "'config ok' not in desktop_hyprland_candidate_check.stdout"

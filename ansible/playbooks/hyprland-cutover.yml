@@ -1,0 +1,112 @@
+---
+- name: Perform guarded Hyprland live cutover
+  hosts: local
+  gather_facts: true
+  vars_files:
+    - ../profiles/desktop.yml
+  pre_tasks:
+    - name: Validate selected Arch platform
+      ansible.builtin.include_role:
+        name: platform_arch
+  tasks:
+    - name: Execute guarded core/session/shell/actions cutover
+      ansible.builtin.include_role:
+        name: desktop_hyprland
+        tasks_from: cutover
+
+    - name: Validate and activate the complete live candidate
+      block:
+        - name: Validate live Hyprland entrypoint after block success
+          ansible.builtin.command:
+            argv:
+              - Hyprland
+              - --verify-config
+              - --config
+              - "{{ dotfiles_home }}/.config/hypr/hyprland.lua"
+          register: desktop_hyprland_live_check
+          changed_when: false
+          failed_when:
+            - desktop_hyprland_live_check.rc != 0
+            - "'config ok' not in desktop_hyprland_live_check.stdout"
+
+        - name: Perform one controlled Hyprland reload
+          ansible.builtin.command: hyprctl reload
+          register: desktop_hyprland_reload
+          changed_when: false
+
+        - name: Smoke check compositor state
+          ansible.builtin.command: "hyprctl {{ compositor_query }}"
+          loop:
+            - monitors -j
+            - workspaces -j
+            - clients -j
+            - activewindow -j
+          loop_control:
+            loop_var: compositor_query
+          changed_when: false
+
+        - name: Smoke check selected applications and providers
+          ansible.builtin.shell: "command -v {{ smoke_command }}"
+          args:
+            executable: /bin/bash
+          loop:
+            - waybar
+            - walker
+            - hypridle
+            - hyprlock
+            - kitty
+            - chromium
+            - dolphin
+          loop_control:
+            loop_var: smoke_command
+          changed_when: false
+
+        - name: Smoke check staged runtime assets
+          ansible.builtin.stat:
+            path: "{{ smoke_path }}"
+          loop:
+            - "{{ dotfiles_home }}/.config/hypr/scripts/screenshot-region.sh"
+            - "{{ dotfiles_home }}/.config/kitty/kitty.conf"
+          loop_control:
+            loop_var: smoke_path
+          register: desktop_hyprland_runtime_assets
+
+        - name: Validate staged runtime assets after collection
+          ansible.builtin.assert:
+            that:
+              - smoke_asset.stat.exists | default(false)
+            fail_msg: required staged runtime asset is missing
+          loop: "{{ desktop_hyprland_runtime_assets.results }}"
+          loop_control:
+            loop_var: smoke_asset
+
+        - name: Smoke check user providers remain active
+          ansible.builtin.command: "pgrep -x {{ provider_process }}"
+          loop:
+            - waybar
+            - hypridle
+            - elephant
+          loop_control:
+            loop_var: provider_process
+          changed_when: false
+
+      rescue:
+        - name: Restore legacy Hyprland entrypoint after post-cutover failure
+          ansible.builtin.file:
+            path: "{{ dotfiles_home }}/.config/hypr/hyprland.lua"
+            state: absent
+
+        - name: Recreate legacy Hyprland entrypoint after post-cutover failure
+          ansible.builtin.file:
+            src: "{{ dotfiles_root }}/hypr/.config/hypr/hyprland.lua"
+            dest: "{{ dotfiles_home }}/.config/hypr/hyprland.lua"
+            state: link
+
+        - name: Reload restored legacy Hyprland configuration
+          ansible.builtin.command: hyprctl reload
+          changed_when: false
+          when: desktop_hyprland_reload is defined
+
+        - name: Stop after restoring legacy Hyprland configuration
+          ansible.builtin.fail:
+            msg: Hyprland post-cutover validation failed; legacy entrypoint restored and reloaded

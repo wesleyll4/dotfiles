@@ -1,0 +1,26 @@
+---
+- name: Guarded Hyprland entrypoint cutover
+  block:
+    - name: Adopt candidate Hyprland entrypoint
+      ansible.builtin.include_tasks: ../../common/tasks/adopt_link.yml
+      vars:
+        managed_link_target: "{{ desktop_hyprland_live_entrypoint }}"
+        managed_link_expected_source: "{{ desktop_hyprland_candidate_entrypoint }}"
+        managed_link_legacy_sources:
+          - "{{ desktop_hyprland_legacy_entrypoint }}"
+
+  rescue:
+    - name: Restore legacy Hyprland entrypoint after failed cutover
+      ansible.builtin.file:
+        path: "{{ desktop_hyprland_live_entrypoint }}"
+        state: absent
+
+    - name: Recreate recorded legacy Hyprland entrypoint
+      ansible.builtin.file:
+        src: "{{ desktop_hyprland_legacy_entrypoint }}"
+        dest: "{{ desktop_hyprland_live_entrypoint }}"
+        state: link
+
+    - name: Stop after restoring legacy Hyprland entrypoint
+      ansible.builtin.fail:
+        msg: Hyprland cutover failed; legacy entrypoint was restored

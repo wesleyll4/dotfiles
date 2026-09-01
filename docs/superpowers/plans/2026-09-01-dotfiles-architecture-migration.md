@@ -455,13 +455,13 @@ real runtime directory; migration is performed entry-by-entry.
 - Create: ansible/roles/desktop_hyprland/tasks/cutover.yml
 - Modify: desktop.yml, README.md
 
-- [ ] Require passing Task-15 fixture and record every live target/link.
-- [ ] Preflight every target and each named slot; permit only absent, expected, or approved legacy source.
-- [ ] Use one Ansible block/rescue: materialize complete runtime and session.lua, shell.lua, apps.lua; switch live entrypoint last; do not reload inside block.
-- [ ] Rescue restores every recorded old link target upon any task failure.
-- [ ] After block success, verify live entrypoint, perform one controlled reload/restart, and smoke-test current desktop behavior.
-- [ ] Run desktop profile second time and require no changes.
-- [ ] Commit: feat: cut over Hyprland configuration architecture.
+- [x] Require passing Task-15 fixture and record every live target/link.
+- [x] Preflight every target and each named slot; permit only absent, expected, or approved legacy source.
+- [x] Use one Ansible block/rescue: materialize complete runtime and session.lua, shell.lua, apps.lua; switch live entrypoint last; do not reload inside block.
+- [x] Rescue restores every recorded old link target upon any task failure.
+- [x] After block success, verify live entrypoint, perform one controlled reload/restart, and smoke-test current desktop behavior.
+- [x] Run desktop profile second time and require no changes.
+- [x] Commit: feat: cut over Hyprland configuration architecture.
 
 **Validation:** no incomplete core is activated; all providers are valid before one reload.
 
