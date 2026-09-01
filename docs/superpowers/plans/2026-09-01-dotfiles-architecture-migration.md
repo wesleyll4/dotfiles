@@ -294,12 +294,11 @@ managed_link_target: /absolute/runtime/target
 - Create: ansible/roles/shell_zsh/defaults/main.yml
 - Create: ansible/roles/shell_zsh/tasks/main.yml
 - Modify: profiles, link fixture, README.md
-- Remove later: zsh/.zshrc
 
 - [x] Stage copy and compare with old source; commit feat: stage current Zsh source.
 - [x] Extend fixture for expected and legacy .zshrc link.
 - [x] Preflight/cut over only ~/.zshrc via legacy contract; run zsh -n and fresh-shell smoke test; commit feat: cut over current Zsh runtime link.
-- [ ] After target and tracked-reference checks, remove old source in chore: remove Zsh compatibility source.
+- [x] After target and tracked-reference checks, remove old source in chore: remove Zsh compatibility source.
 
 **Validation:** aliases, Starship, Zoxide, Mise, and Yazi function remain.
 

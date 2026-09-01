@@ -16,6 +16,5 @@ cli_tools_link_mappings:
     legacy_sources: []
 
 shell_zsh_expected_source: "{{ dotfiles_root }}/config/user/zsh/.zshrc"
-shell_zsh_legacy_sources:
-  - "{{ dotfiles_root }}/zsh/.zshrc"
+shell_zsh_legacy_sources: []
 shell_zsh_packages: []

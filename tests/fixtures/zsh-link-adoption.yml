@@ -4,8 +4,7 @@
   gather_facts: false
   vars:
     shell_zsh_expected_source: "{{ dotfiles_root }}/config/user/zsh/.zshrc"
-    shell_zsh_legacy_sources:
-      - "{{ dotfiles_root }}/zsh/.zshrc"
+    shell_zsh_legacy_sources: []
   tasks:
     - name: Apply staged Zsh mapping
       ansible.builtin.include_role:

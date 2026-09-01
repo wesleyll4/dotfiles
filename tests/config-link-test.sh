@@ -140,7 +140,7 @@ grep -F 'changed=0' <<<"$cli_second_run" >/dev/null
 
 zsh_home="$fixture/zsh-home"
 mkdir -p "$zsh_home"
-ln -s -- "$root/zsh/.zshrc" "$zsh_home/.zshrc"
+ln -s -- "$root/config/user/zsh/.zshrc" "$zsh_home/.zshrc"
 
 run_zsh_fixture() {
     ANSIBLE_CONFIG="$root/ansible/ansible.cfg" \
