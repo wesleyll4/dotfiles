@@ -306,7 +306,8 @@ managed_link_target: /absolute/runtime/target
 
 ## Task 10: Stage and cut over Kitty
 
-**Type:** staged then functional migration; no Zsh dependency.
+**Type:** staged then functional migration; no Zsh dependency. Kitty keeps its existing
+real runtime directory; migration is performed entry-by-entry.
 
 **Files:**
 
@@ -316,15 +317,19 @@ managed_link_target: /absolute/runtime/target
 - Modify: profiles, link fixture, README.md
 - Remove later: kitty/.config/kitty/
 
-- [ ] Compare kitty.conf and backup artifacts; preserve all source content.
-- [ ] Stage copy and commit feat: stage current Kitty source.
-- [ ] Extend directory fixture with expected and legacy target.
-- [ ] Preflight/cut over ~/.config/kitty; run Kitty debug config and open fresh terminal; commit feat: cut over current Kitty runtime link.
-- [ ] After no live/track references remain, remove old source in separate cleanup commit.
+- [ ] Inventory every entry currently present in ~/.config/kitty, including backup artifacts.
+- [ ] Compare all managed sources byte-for-byte; preserve every source, including kitty.conf.bak.
+- [ ] Stage copy and commit feat: stage current Kitty source without changing the runtime directory.
+- [ ] Define explicit per-entry mappings; each managed runtime entry must be a symlink to an approved legacy source.
+- [ ] Extend fixtures for per-entry expected/legacy adoption while rejecting regular files, directories, and unapproved symlinks.
+- [ ] Preflight all runtime entries; abort before mutation on any unexpected state.
+- [ ] Relink only approved entries to config/user/kitty/<entry>; never remove or replace ~/.config/kitty.
+- [ ] Run Kitty debug config, fresh-terminal smoke test, and two profile executions with changed=0 on the second; commit feat: cut over current Kitty runtime links.
+- [ ] After no live/versioned references remain, remove old sources in a separate cleanup commit.
 
 **Validation:** Kitty config parses and retains current shell behavior.
 
-**Rollback:** restore recorded directory link and revert cutover.
+**Rollback:** restore each recorded per-entry legacy link; the runtime directory itself is never replaced.
 
 ## Task 11: Add development boundary and reviewed package inventory
 
