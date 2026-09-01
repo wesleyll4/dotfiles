@@ -315,7 +315,6 @@ real runtime directory; migration is performed entry-by-entry.
 - Create: ansible/roles/terminal_kitty/defaults/main.yml
 - Create: ansible/roles/terminal_kitty/tasks/main.yml
 - Modify: profiles, link fixture, README.md
-- Remove later: kitty/.config/kitty/
 
 - [x] Inventory every entry currently present in ~/.config/kitty, including backup artifacts.
 - [x] Compare all managed sources byte-for-byte; preserve every source, including kitty.conf.bak.
@@ -325,7 +324,7 @@ real runtime directory; migration is performed entry-by-entry.
 - [x] Preflight all runtime entries; abort before mutation on any unexpected state.
 - [x] Relink only approved entries to config/user/kitty/<entry>; never remove or replace ~/.config/kitty.
 - [x] Confirm the installed Kitty version; start a controlled fresh instance with `kitty --config <candidate-kitty.conf>`, verify its behavior, then cut over and open a new Kitty through the normal path; run two profile executions with changed=0 on the second; commit feat: cut over current Kitty runtime links.
-- [ ] After no live/versioned references remain, remove old sources in a separate cleanup commit.
+- [x] After no live/versioned references remain, remove old sources in a separate cleanup commit.
 
 **Validation:** the installed Kitty version accepts the candidate config, a controlled fresh instance starts and exits cleanly, and a normal post-cutover Kitty instance retains current shell behavior.
 

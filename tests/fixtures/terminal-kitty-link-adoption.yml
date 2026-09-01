@@ -7,20 +7,16 @@
     terminal_kitty_entries:
       - name: "One Dark.conf"
         expected_source: "{{ dotfiles_root }}/config/user/kitty/One Dark.conf"
-        legacy_sources:
-          - "{{ dotfiles_root }}/kitty/.config/kitty/One Dark.conf"
+        legacy_sources: []
       - name: current-theme.conf
         expected_source: "{{ dotfiles_root }}/config/user/kitty/current-theme.conf"
-        legacy_sources:
-          - "{{ dotfiles_root }}/kitty/.config/kitty/current-theme.conf"
+        legacy_sources: []
       - name: kitty.conf
         expected_source: "{{ dotfiles_root }}/config/user/kitty/kitty.conf"
-        legacy_sources:
-          - "{{ dotfiles_root }}/kitty/.config/kitty/kitty.conf"
+        legacy_sources: []
       - name: kitty.conf.bak
         expected_source: "{{ dotfiles_root }}/config/user/kitty/kitty.conf.bak"
-        legacy_sources:
-          - "{{ dotfiles_root }}/kitty/.config/kitty/kitty.conf.bak"
+        legacy_sources: []
   tasks:
     - name: Apply staged Kitty entry mappings
       ansible.builtin.include_role:
