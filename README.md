@@ -1,5 +1,10 @@
 # Dotfiles
 
+Este repositório descreve meu ambiente de trabalho de forma reproduzível. A
+distribuição é uma plataforma; preferências pessoais e responsabilidades de
+ambiente ficam separadas para poder evoluir sem um novo backup acidental da
+máquina atual.
+
 ## Provisionamento
 
 O entrypoint arquitetural é `./bootstrap`:
@@ -8,6 +13,18 @@ O entrypoint arquitetural é `./bootstrap`:
 ./bootstrap desktop --check
 ./bootstrap dev --check
 ```
+
+Para aplicar o estado:
+
+```sh
+./bootstrap desktop
+./bootstrap dev
+```
+
+`desktop` compõe o ambiente pessoal gráfico (Hyprland, shell/UI, sessão,
+aplicações e ferramentas de uso diário). `dev` aplica apenas a capacidade de
+desenvolvimento e seus links compartilhados; não instala componentes de
+desktop.
 
 Ele calcula a raiz do checkout, exporta o `ANSIBLE_CONFIG` do repositório e
 injeta `dotfiles_root` e `dotfiles_home` no playbook selecionado. Nesta fase,
@@ -42,6 +59,73 @@ Configuração pessoal para Arch Linux, Hyprland e os utilitários do desktop.
 Os arquivos ficam versionados aqui e são ligados ao `$HOME`; configurações do
 sistema são copiadas com backup, porque `/etc` não deve apontar para o diretório
 do usuário.
+
+### Onde cada coisa pertence
+
+```text
+config/user   = source of truth
+roles         = responsabilidades executáveis
+profiles      = composição e política
+platform vars = diferenças físicas da plataforma
+host_vars     = fatos específicos da máquina
+```
+
+Para adicionar configuração pessoal, coloque a fonte em `config/user/`, declare
+o link ou template na role responsável e valide primeiro com `--check`. Não
+espalhe detalhes de hardware em roles: use `host_vars`.
+
+O manifesto gerenciado é deliberado: **inventário observado != manifesto
+gerenciado**. Um programa instalado não entra automaticamente no provisionamento.
+
+### Packages e runtimes
+
+Um novo package native Arch deve ser confirmado como dependência desejada,
+adicionado à lista da capacidade correspondente em `platform_arch.yml` e
+validado com `./bootstrap desktop --check` (ou `dev --check`) antes da execução
+real. A role `packages` usa o backend nativo mínimo do Ansible; AUR, Flatpak e
+gaming estão apenas inventariados e fora do gerenciamento atual.
+
+Node.js e .NET não são instalados pelo pacman neste ambiente: seus runtimes são
+gerenciados pelo Mise.
+
+## Arquitetura do desktop
+
+O desktop Hyprland é composto por um core neutro e três slots independentes:
+
+```text
+desktop_hyprland
+├── core neutro
+├── session.lua
+├── shell.lua
+└── apps.lua
+```
+
+- `desktop_session_current`: Hypridle, Hyprlock e comportamento de sessão;
+- `desktop_shell_current`: Waybar, Walker, Elephant, AGS/Astal e UI relacionada;
+- `desktop_actions_current`: terminal, browser, file manager e screenshot.
+
+Para testar outro shell/provider, crie uma nova implementação do slot
+correspondente e selecione-a em um novo profile. O core não deve conhecer nomes
+de providers; session, shell e actions devem manter ownership separado. Esta
+arquitetura permite experimentar alternativas sem trocar o restante do desktop.
+
+### Garantias operacionais
+
+As migrações usam staging antes do cutover, preflight read-only, validação com
+`Hyprland --verify-config`, substituição/rollback atômicos quando aplicável e
+execuções idempotentes. Fixtures cobrem links, conflitos, composição e estados
+de rollback; uma segunda execução sem mudanças relevantes é um gate obrigatório.
+
+## Boundaries legados
+
+greetd/ReGreet continua sendo gerenciado pelo fluxo especializado de
+`install.sh`, separado das roles genéricas. O diretório
+`hypr/.config/hypr/lua` é uma dependência operacional preservada
+intencionalmente enquanto esse instalador e seus testes dependerem dele.
+
+Não remova nem migre esse diretório casualmente: uma mudança futura precisa
+seguir [a decisão documentada](docs/decisions/greetd-regreet-transition.md) e
+preservar staging, drift detection, backup e rollback.
 
 ## Migração do Hyprland para Lua
 
