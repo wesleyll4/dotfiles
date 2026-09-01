@@ -45,10 +45,11 @@ do usuário.
 
 ## Migração do Hyprland para Lua
 
-O ponto de entrada novo é `hypr/.config/hypr/hyprland.lua`, dividido em módulos
-em `hypr/.config/hypr/lua/`. Os arquivos `hypridle.conf` e `hyprlock.conf`
-continuam no formato anterior, pois a migração anunciada pelo Hyprland é da
-configuração do compositor.
+O ponto de entrada ativo é `config/user/hypr/candidate/hyprland.lua`, dividido
+em `core/` e slots de integração para sessão, shell e ações. As configurações
+de Hypridle/Hyprlock e os assets dos providers também vivem em `config/user/`.
+O diretório legado `hypr/.config/hypr/lua/` permanece apenas porque o instalador
+especializado de greetd/ReGreet ainda o utiliza.
 
 Antes de instalar:
 
@@ -62,9 +63,8 @@ Para criar apenas os links do usuário:
 ./install.sh install-user
 ```
 
-O Hyprland escolhe a configuração Lua no próximo início da sessão. A configuração
-antiga `hyprland.conf` permanece no repositório como referência durante a
-transição.
+O Hyprland usa a configuração Lua materializada em `~/.config/hypr`; não há
+fallback operacional para a antiga configuração monolítica.
 
 ## Login visual com greetd + ReGreet
 
