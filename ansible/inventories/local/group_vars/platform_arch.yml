@@ -18,4 +18,6 @@ shell_packages: []
 desktop_hyprland_packages: []
 desktop_session_packages: []
 desktop_shell_packages: []
+desktop_shell_noctalia_packages:
+  - noctalia
 desktop_actions_packages: []
