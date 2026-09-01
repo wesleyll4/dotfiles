@@ -1,0 +1,49 @@
+---
+- name: Assert Hyprland candidate root exists
+  ansible.builtin.assert:
+    that:
+      - desktop_hyprland_candidate_root is directory
+    fail_msg: Hyprland candidate source root is missing
+
+- name: Assert monitor facts are present
+  ansible.builtin.assert:
+    that:
+      - hyprland_monitors is sequence
+      - hyprland_monitors | length == 3
+      - hyprland_monitors[0].output == 'DP-3'
+      - hyprland_monitors[0].mode == '1920x1080@60'
+      - hyprland_monitors[0].position == '2560x0'
+      - hyprland_monitors[1].output == 'HDMI-A-1'
+      - hyprland_monitors[1].mode == '2560x1080@60'
+      - hyprland_monitors[1].position == '0x0'
+    fail_msg: monitor facts must preserve the current DP-3 and HDMI-A-1 geometry
+
+- name: Prepare temporary Hyprland candidate runtime
+  ansible.builtin.file:
+    path: "{{ desktop_hyprland_stage_root }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - core
+    - integrations
+
+- name: Copy neutral candidate modules to temporary runtime
+  ansible.builtin.copy:
+    src: "{{ desktop_hyprland_candidate_root }}/{{ item }}"
+    dest: "{{ desktop_hyprland_stage_root }}/{{ item }}"
+    remote_src: true
+    mode: preserve
+  loop:
+    - hyprland.lua
+    - core/options.lua
+    - core/rules.lua
+    - core/binds.lua
+    - integrations/session.lua
+    - integrations/shell.lua
+    - integrations/apps.lua
+
+- name: Render monitor module from machine facts in temporary runtime
+  ansible.builtin.template:
+    src: "{{ desktop_hyprland_candidate_root }}/core/monitors.lua.j2"
+    dest: "{{ desktop_hyprland_stage_root }}/core/monitors.lua"
+    mode: '0644'

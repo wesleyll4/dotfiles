@@ -1,0 +1,9 @@
+{% for monitor in hyprland_monitors %}
+hl.monitor({
+    output = {{ monitor.output | to_json }},
+    mode = {{ monitor.mode | to_json }},
+    position = {{ monitor.position | to_json }},
+    scale = {{ monitor.scale | to_json }},{% if monitor.disabled is defined %}
+    disabled = {{ monitor.disabled | to_json }},{% endif %}
+})
+{% endfor %}

@@ -26,6 +26,10 @@ for path in \
     ansible/roles/terminal_kitty/tasks/main.yml \
     ansible/roles/development/defaults/main.yml \
     ansible/roles/development/tasks/main.yml \
+    ansible/roles/desktop_hyprland/defaults/main.yml \
+    ansible/roles/desktop_hyprland/tasks/stage.yml \
+    ansible/inventories/local/host_vars/main_desktop.yml \
+    tests/fixtures/stage-hyprland-candidate.yml \
     docs/decisions/current-tools.md \
     docs/decisions/development-and-gaming-scope.md \
     docs/package-inventory-arch.md \

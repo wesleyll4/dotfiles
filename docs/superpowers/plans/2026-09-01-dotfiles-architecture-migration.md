@@ -367,12 +367,12 @@ real runtime directory; migration is performed entry-by-entry.
 - Create: ansible/roles/desktop_hyprland/tasks/stage.yml
 - Modify: tests/config-test.sh
 
-- [ ] Copy current Lua sources to candidate paths without removing old sources.
-- [ ] Render monitor module from host facts matching current HDMI-A-1 and DP-3 geometry.
-- [ ] Retain only compositor options, inputs, monitors, workspaces, neutral rules, and neutral focus/move/resize/workspace binds.
-- [ ] Require session.lua, shell.lua, apps.lua; no candidate core string names application, lock, idle, or shell provider.
-- [ ] Validate temporary candidate core with all slots set to no-op.
-- [ ] Commit: feat: stage Hyprland core candidate.
+- [x] Copy current Lua sources to candidate paths without removing old sources.
+- [x] Render monitor module from host facts matching current HDMI-A-1 and DP-3 geometry.
+- [x] Retain only compositor options, inputs, monitors, workspaces, neutral rules, and neutral focus/move/resize/workspace binds.
+- [x] Require session.lua, shell.lua, apps.lua; no candidate core string names application, lock, idle, or shell provider.
+- [x] Validate temporary candidate core with all slots set to no-op.
+- [x] Commit: feat: stage Hyprland core candidate.
 
 **Validation:** fixture Hyprland verification passes; live configuration untouched.
 

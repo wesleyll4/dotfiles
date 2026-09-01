@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 desktop_config="$repo_root/hypr/.config/hypr/hyprland.lua"
+candidate_config="$repo_root/config/user/hypr/candidate/hyprland.lua"
 greeter_config="$repo_root/greetd/etc/greetd/hyprland-greeter.lua"
 launcher="$repo_root/greetd/etc/greetd/launch-regreet.sh"
 tmp_root=$(mktemp -d)
@@ -88,7 +89,21 @@ verify_config() {
 }
 
 verify_config desktop "$desktop_config"
+verify_config candidate "$candidate_config"
 verify_config greeter "$greeter_config"
+
+for forbidden in Waybar Walker Hyprlock Hypridle Kitty Dolphin Chromium; do
+    if grep -R -F "$forbidden" "$repo_root/config/user/hypr/candidate/core" >/dev/null; then
+        printf 'candidate core contains provider/application name: %s\n' "$forbidden" >&2
+        exit 1
+    fi
+done
+grep -F 'output = "DP-3"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
+grep -F 'mode = "1920x1080@60"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
+grep -F 'position = "2560x0"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
+grep -F 'output = "HDMI-A-1"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
+grep -F 'mode = "2560x1080@60"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
+grep -F 'position = "0x0"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
 test_launcher_uses_local_wallpaper
 test_launcher_uses_fallback_without_local_images
 python "$repo_root/scripts/validate-greetd.py" "$repo_root/greetd/etc/greetd"
