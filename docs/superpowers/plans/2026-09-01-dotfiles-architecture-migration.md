@@ -296,7 +296,7 @@ managed_link_target: /absolute/runtime/target
 - Modify: profiles, link fixture, README.md
 - Remove later: zsh/.zshrc
 
-- [ ] Stage copy and compare with old source; commit feat: stage current Zsh source.
+- [x] Stage copy and compare with old source; commit feat: stage current Zsh source.
 - [ ] Extend fixture for expected and legacy .zshrc link.
 - [ ] Preflight/cut over only ~/.zshrc via legacy contract; run zsh -n and fresh-shell smoke test; commit feat: cut over current Zsh runtime link.
 - [ ] After target and tracked-reference checks, remove old source in chore: remove Zsh compatibility source.
