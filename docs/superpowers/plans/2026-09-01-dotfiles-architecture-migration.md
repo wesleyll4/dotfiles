@@ -434,12 +434,12 @@ real runtime directory; migration is performed entry-by-entry.
 - Modify: ansible/playbooks/verify.yml
 - Modify: tests/config-test.sh
 
-- [ ] Create temporary XDG_CONFIG_HOME and temporary dotfiles_home.
-- [ ] Materialize candidate core, rendered monitors, current session config, current shell config, current actions, and three selected slots.
-- [ ] Assert every fixture output is below temporary dotfiles_home.
-- [ ] Run Hyprland --verify-config against temporary entrypoint.
-- [ ] Run fixture twice and assert second run has no changes.
-- [ ] Commit: test: validate complete Hyprland candidate.
+- [x] Create temporary XDG_CONFIG_HOME and temporary dotfiles_home.
+- [x] Materialize candidate core, rendered monitors, current session config, current shell config, current actions, and three selected slots.
+- [x] Assert every fixture output is below temporary dotfiles_home.
+- [x] Run Hyprland --verify-config against temporary entrypoint.
+- [x] Run fixture twice and assert second run has no changes.
+- [x] Commit: test: validate complete Hyprland candidate.
 
 **Validation:** complete candidate passes before any live path changes.
 

@@ -38,6 +38,8 @@ for path in \
     tests/fixtures/stage-hyprland-candidate.yml \
     tests/fixtures/stage-session-candidate.yml \
     tests/fixtures/stage-shell-actions-candidates.yml \
+    tests/fixtures/hyprland-candidate.yml \
+    tests/hyprland-candidate-test.sh \
     docs/decisions/current-tools.md \
     docs/decisions/development-and-gaming-scope.md \
     docs/package-inventory-arch.md \

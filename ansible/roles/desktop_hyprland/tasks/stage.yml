@@ -27,7 +27,7 @@
     - core
     - integrations
 
-- name: Copy neutral candidate modules to temporary runtime
+- name: Copy neutral core modules to temporary runtime
   ansible.builtin.copy:
     src: "{{ desktop_hyprland_candidate_root }}/{{ item }}"
     dest: "{{ desktop_hyprland_stage_root }}/{{ item }}"
@@ -38,9 +38,18 @@
     - core/options.lua
     - core/rules.lua
     - core/binds.lua
+
+- name: Copy no-op provider slots to temporary runtime
+  ansible.builtin.copy:
+    src: "{{ desktop_hyprland_candidate_root }}/{{ item }}"
+    dest: "{{ desktop_hyprland_stage_root }}/{{ item }}"
+    remote_src: true
+    mode: preserve
+  loop:
     - integrations/session.lua
     - integrations/shell.lua
     - integrations/apps.lua
+  when: desktop_hyprland_stage_copy_noop_slots
 
 - name: Render monitor module from machine facts in temporary runtime
   ansible.builtin.template:

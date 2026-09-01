@@ -9,6 +9,8 @@ launcher="$repo_root/greetd/etc/greetd/launch-regreet.sh"
 tmp_root=$(mktemp -d)
 trap 'rm -rf -- "$tmp_root"' EXIT
 
+bash "$repo_root/tests/hyprland-candidate-test.sh"
+
 make_fake_regreet() {
     local fake=$1
     cat >"$fake" <<'EOF'

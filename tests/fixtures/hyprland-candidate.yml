@@ -1,0 +1,69 @@
+---
+- name: Materialize complete Hyprland candidate fixture
+  hosts: local
+  gather_facts: false
+  vars:
+    candidate_runtime_root: "{{ dotfiles_home }}/candidate-runtime"
+    real_home: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+  tasks:
+    - name: Stage neutral core and rendered monitors
+      ansible.builtin.include_role:
+        name: desktop_hyprland
+        tasks_from: stage
+      vars:
+        desktop_hyprland_stage_root: "{{ candidate_runtime_root }}"
+        desktop_hyprland_stage_copy_noop_slots: false
+    - name: Materialize selected provider slots
+      ansible.builtin.copy:
+        src: "{{ dotfiles_root }}/config/user/hypr/candidate/{{ item.src }}"
+        dest: "{{ candidate_runtime_root }}/integrations/{{ item.dest }}"
+        remote_src: true
+        mode: '0644'
+      loop:
+        - { src: 'session/current/session.lua', dest: 'session.lua' }
+        - { src: 'shell/current/shell.lua', dest: 'shell.lua' }
+        - { src: 'actions/current/apps.lua', dest: 'apps.lua' }
+    - name: Create temporary user config directories
+      ansible.builtin.file:
+        path: "{{ dotfiles_home }}/.config/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - hypr
+        - waybar
+        - walker
+        - elephant
+    - name: Materialize session configs in temporary home
+      ansible.builtin.copy:
+        src: "{{ dotfiles_root }}/config/user/hypr/candidate/session/current/{{ item }}"
+        dest: "{{ dotfiles_home }}/.config/hypr/{{ item }}"
+        remote_src: true
+        mode: '0644'
+      loop:
+        - hypridle.conf
+        - hyprlock.conf
+    - name: Materialize current Hyprland scripts in temporary home
+      ansible.builtin.copy:
+        src: "{{ dotfiles_root }}/hypr/.config/hypr/scripts/"
+        dest: "{{ dotfiles_home }}/.config/hypr/scripts/"
+        remote_src: true
+        mode: preserve
+    - name: Materialize shell provider configs in temporary home
+      ansible.builtin.copy:
+        src: "{{ dotfiles_root }}/{{ item.src }}"
+        dest: "{{ dotfiles_home }}/.config/{{ item.dest }}/"
+        remote_src: true
+        mode: preserve
+      loop:
+        - { src: 'waybar/.config/waybar/', dest: 'waybar' }
+        - { src: 'walker/.config/walker/', dest: 'walker' }
+        - { src: 'elephant/.config/elephant/', dest: 'elephant' }
+    - name: Assert fixture roots are temporary
+      ansible.builtin.assert:
+        that:
+          - candidate_runtime_root != real_home
+          - dotfiles_home != real_home
+          - candidate_runtime_root is directory
+          - (candidate_runtime_root + '/integrations/session.lua') is file
+          - (candidate_runtime_root + '/integrations/shell.lua') is file
+          - (candidate_runtime_root + '/integrations/apps.lua') is file
