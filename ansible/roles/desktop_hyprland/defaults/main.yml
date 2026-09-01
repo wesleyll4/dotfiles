@@ -1,3 +1,4 @@
 ---
 desktop_hyprland_candidate_root: "{{ dotfiles_root }}/config/user/hypr/candidate"
 desktop_hyprland_stage_root: "{{ ansible_env.TMPDIR | default('/tmp') }}/dotfiles-hyprland-candidate"
+desktop_hyprland_stage_copy_noop_slots: true
