@@ -119,7 +119,7 @@ fi
 
 cli_home="$fixture/cli-home"
 mkdir -p "$cli_home/.config/mise" "$cli_home/.config/yazi"
-ln -s -- "$root/starship/.config/starship.toml" "$cli_home/.config/starship.toml"
+ln -s -- "$root/config/user/starship/starship.toml" "$cli_home/.config/starship.toml"
 ln -s -- "$root/mise/.config/mise/config.toml" "$cli_home/.config/mise/config.toml"
 ln -s -- "$root/yazi/.config/yazi/keymap.toml" "$cli_home/.config/yazi/keymap.toml"
 

@@ -6,8 +6,7 @@
     cli_tools_link_mappings:
       - target: "{{ dotfiles_home }}/.config/starship.toml"
         expected_source: "{{ dotfiles_root }}/config/user/starship/starship.toml"
-        legacy_sources:
-          - "{{ dotfiles_root }}/starship/.config/starship.toml"
+        legacy_sources: []
       - target: "{{ dotfiles_home }}/.config/mise/config.toml"
         expected_source: "{{ dotfiles_root }}/config/user/mise/config.toml"
         legacy_sources:
