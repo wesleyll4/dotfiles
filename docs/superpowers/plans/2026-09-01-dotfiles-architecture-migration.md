@@ -317,14 +317,14 @@ real runtime directory; migration is performed entry-by-entry.
 - Modify: profiles, link fixture, README.md
 - Remove later: kitty/.config/kitty/
 
-- [ ] Inventory every entry currently present in ~/.config/kitty, including backup artifacts.
-- [ ] Compare all managed sources byte-for-byte; preserve every source, including kitty.conf.bak.
-- [ ] Stage copy and commit feat: stage current Kitty source without changing the runtime directory.
-- [ ] Define explicit per-entry mappings; each managed runtime entry must be a symlink to an approved legacy source.
-- [ ] Extend fixtures for per-entry expected/legacy adoption while rejecting regular files, directories, and unapproved symlinks.
-- [ ] Preflight all runtime entries; abort before mutation on any unexpected state.
-- [ ] Relink only approved entries to config/user/kitty/<entry>; never remove or replace ~/.config/kitty.
-- [ ] Confirm the installed Kitty version; start a controlled fresh instance with `kitty --config <candidate-kitty.conf>`, verify its behavior, then cut over and open a new Kitty through the normal path; run two profile executions with changed=0 on the second; commit feat: cut over current Kitty runtime links.
+- [x] Inventory every entry currently present in ~/.config/kitty, including backup artifacts.
+- [x] Compare all managed sources byte-for-byte; preserve every source, including kitty.conf.bak.
+- [x] Stage copy and commit feat: stage current Kitty source without changing the runtime directory.
+- [x] Define explicit per-entry mappings; each managed runtime entry must be a symlink to an approved legacy source.
+- [x] Extend fixtures for per-entry expected/legacy adoption while rejecting regular files, directories, and unapproved symlinks.
+- [x] Preflight all runtime entries; abort before mutation on any unexpected state.
+- [x] Relink only approved entries to config/user/kitty/<entry>; never remove or replace ~/.config/kitty.
+- [x] Confirm the installed Kitty version; start a controlled fresh instance with `kitty --config <candidate-kitty.conf>`, verify its behavior, then cut over and open a new Kitty through the normal path; run two profile executions with changed=0 on the second; commit feat: cut over current Kitty runtime links.
 - [ ] After no live/versioned references remain, remove old sources in a separate cleanup commit.
 
 **Validation:** the installed Kitty version accepts the candidate config, a controlled fresh instance starts and exits cleanly, and a normal post-cutover Kitty instance retains current shell behavior.

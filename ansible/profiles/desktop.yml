@@ -3,6 +3,7 @@ profile_roles:
   - common
   - cli_tools
   - shell_zsh
+  - terminal_kitty
 
 cli_tools_link_mappings:
   - target: "{{ dotfiles_home }}/.config/starship.toml"
@@ -18,3 +19,22 @@ cli_tools_link_mappings:
 shell_zsh_expected_source: "{{ dotfiles_root }}/config/user/zsh/.zshrc"
 shell_zsh_legacy_sources: []
 shell_zsh_packages: []
+
+terminal_kitty_packages: []
+terminal_kitty_entries:
+  - name: "One Dark.conf"
+    expected_source: "{{ dotfiles_root }}/config/user/kitty/One Dark.conf"
+    legacy_sources:
+      - "{{ dotfiles_root }}/kitty/.config/kitty/One Dark.conf"
+  - name: current-theme.conf
+    expected_source: "{{ dotfiles_root }}/config/user/kitty/current-theme.conf"
+    legacy_sources:
+      - "{{ dotfiles_root }}/kitty/.config/kitty/current-theme.conf"
+  - name: kitty.conf
+    expected_source: "{{ dotfiles_root }}/config/user/kitty/kitty.conf"
+    legacy_sources:
+      - "{{ dotfiles_root }}/kitty/.config/kitty/kitty.conf"
+  - name: kitty.conf.bak
+    expected_source: "{{ dotfiles_root }}/config/user/kitty/kitty.conf.bak"
+    legacy_sources:
+      - "{{ dotfiles_root }}/kitty/.config/kitty/kitty.conf.bak"
