@@ -1,0 +1,16 @@
+- name: Assert desktop bootstrap context
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - ../../ansible/profiles/desktop.yml
+  tasks:
+    - name: Load the configured common role path
+      ansible.builtin.include_role:
+        name: common
+
+    - name: Assert desktop profile inputs
+      ansible.builtin.assert:
+        that:
+          - dotfiles_profile_name == expected_profile
+          - dotfiles_root is directory
+          - dotfiles_home is directory

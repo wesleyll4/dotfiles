@@ -14,6 +14,15 @@ injeta `dotfiles_root` e `dotfiles_home` no playbook selecionado. Nesta fase,
 ele instala somente o Ansible se ainda não estiver disponível e o profile ainda
 não gerencia configurações de aplicações.
 
+Depois que o Ansible estiver disponível, valide o contrato de execução a partir
+de qualquer diretório com:
+
+```sh
+bash tests/ansible-vars-test.sh
+```
+
+O teste usa um `dotfiles_home` temporário; ele não escreve no `$HOME` real.
+
 Configuração pessoal para Arch Linux, Hyprland e os utilitários do desktop.
 Os arquivos ficam versionados aqui e são ligados ao `$HOME`; configurações do
 sistema são copiadas com backup, porque `/etc` não deve apontar para o diretório

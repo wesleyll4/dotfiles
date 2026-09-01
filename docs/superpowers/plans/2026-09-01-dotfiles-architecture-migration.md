@@ -157,12 +157,12 @@ ansible/profiles/desktop.yml and ansible/profiles/dev.yml define dotfiles_profil
 - Create: tests/fixtures/assert-dev-vars.yml
 - Modify: README.md
 
-- [ ] Confirm bootstrap dry-run lists only Ansible and selected no-op playbook.
-- [ ] Run bootstrap desktop --check.
-- [ ] Fixture plays load the same profile vars_files as real profile plays and assert expected profile name, dotfiles_root, and fixture dotfiles_home. Platform vars and package lists are intentionally absent until Task 4.
-- [ ] Run ansible-vars-test.sh from an unrelated current directory; it verifies ANSIBLE_CONFIG, inventory, roles path, explicit profile vars, and fixture HOME only.
-- [ ] Run ansible-playbook syntax check and check mode through bootstrap, not direct incidental cwd commands.
-- [ ] Commit: docs: verify Ansible bootstrap workflow.
+- [x] Confirm bootstrap dry-run lists only Ansible and selected no-op playbook.
+- [x] Run bootstrap desktop --check.
+- [x] Fixture plays load the same profile vars_files as real profile plays and assert expected profile name, dotfiles_root, and fixture dotfiles_home. Platform vars and package lists are intentionally absent until Task 4.
+- [x] Run ansible-vars-test.sh from an unrelated current directory; it verifies ANSIBLE_CONFIG, inventory, roles path, explicit profile vars, and fixture HOME only.
+- [x] Run the public entrypoint check mode through `./bootstrap <profile> --check`; run `ansible-playbook --syntax-check` directly with the same explicit `ANSIBLE_CONFIG`, inventory, roles path, and profile `vars_files` context. Syntax check is intentionally not a bootstrap option.
+- [x] Commit: docs: verify Ansible bootstrap workflow.
 
 **Validation:** configuration, inventory, roles path, profile vars, and fixture HOME resolve through bootstrap contract.
 
