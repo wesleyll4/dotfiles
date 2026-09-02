@@ -13,10 +13,18 @@ current="$root/config/user/hypr/candidate/shell/current/shell.lua"
 slot="$home/.config/hypr/integrations/shell.lua"
 ```
 
-Stop only Noctalia:
+Stop only Noctalia (AGS is identified by its `mydots` instance, not by the
+process name `ags`):
 
 ```bash
 pkill -x noctalia || true
+if ags list | grep -q mydots; then
+  ags quit --instance mydots
+  for _ in $(seq 1 10); do
+    ags list | grep -q mydots || break
+    sleep 1
+  done
+fi
 ```
 
 Restore the current provider atomically. The temporary link must be on the
@@ -41,13 +49,19 @@ hyprctl reload
 ```
 
 Restart only the current provider components that were active in the
-preflight snapshot:
+preflight snapshot. Use `ags list` to verify the AGS instance:
 
 ```bash
 pgrep -x waybar >/dev/null || waybar &
 pgrep -x walker >/dev/null || walker --gapplication-service &
 pgrep -x elephant >/dev/null || systemctl --user restart elephant
-pgrep -x ags >/dev/null || ags run "$home/.config/ags" &
+if ! ags list | grep -q mydots; then
+  ags run "$home/.config/ags" &
+  for _ in $(seq 1 10); do
+    ags list | grep -q mydots && break
+    sleep 1
+  done
+fi
 ```
 
 Do not execute lock, suspend, logout, reboot, or shutdown actions while
