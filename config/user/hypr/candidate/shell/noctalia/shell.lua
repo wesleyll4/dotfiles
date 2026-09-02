@@ -5,7 +5,7 @@ end)
 
 hl.bind("SUPER + Space", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher"))
 hl.bind("SUPER + V", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"))
-hl.bind("SUPER + S", hl.dsp.exec_cmd("noctalia msg panel-toggle control-center"))
+hl.bind("SUPER + SHIFT + Space", hl.dsp.exec_cmd("noctalia msg panel-toggle control-center"))
 hl.bind("SUPER + Escape", hl.dsp.exec_cmd("noctalia msg panel-toggle session"))
 
 return {}
