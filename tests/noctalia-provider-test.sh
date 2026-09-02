@@ -33,6 +33,17 @@ XDG_STATE_HOME="$tmp_root/state" \
 XDG_DATA_HOME="$tmp_root/data" \
 XDG_CACHE_HOME="$tmp_root/cache" \
     noctalia config validate
+
+XDG_CONFIG_HOME="$tmp_root/config" \
+XDG_STATE_HOME="$tmp_root/state" \
+XDG_DATA_HOME="$tmp_root/data" \
+XDG_CACHE_HOME="$tmp_root/cache" \
+    noctalia config export merged >"$tmp_root/merged-config.toml"
+grep -F '[bar.default]' "$tmp_root/merged-config.toml" >/dev/null
+grep -F '[bar.default.monitor.DP-3]' "$tmp_root/merged-config.toml" >/dev/null
+grep -F '[bar.default.monitor.HDMI-A-1]' "$tmp_root/merged-config.toml" >/dev/null
+grep -F 'community_palette = "Catppuccin Mocha Blue"' "$tmp_root/merged-config.toml" >/dev/null
+grep -F 'format = "%A | %d %b %H:%M"' "$tmp_root/merged-config.toml" >/dev/null
 # The live configuration may legitimately exist; isolation is proven by the
 # temporary XDG paths above and by the candidate checks below.
 

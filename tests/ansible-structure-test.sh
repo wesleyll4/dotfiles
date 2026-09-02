@@ -65,4 +65,4 @@ done
     exit 1
 }
 
-"$root/bootstrap" --help | grep -F 'desktop|dev' >/dev/null
+"$root/bootstrap" --help | grep -F 'desktop|desktop-noctalia|dev' >/dev/null

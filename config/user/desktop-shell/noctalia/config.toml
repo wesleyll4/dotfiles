@@ -22,3 +22,80 @@ enabled = false
 
 [wallpaper.automation]
 enabled = false
+
+[bar.default]
+background_opacity = 0.9
+capsule = true
+capsule_opacity = 0.7
+end = [
+    "weather",
+    "media",
+    "volume",
+    "notifications",
+    "clipboard",
+    "network",
+    "bluetooth",
+    "brightness",
+    "battery",
+    "tray",
+    "control-center",
+    "session"
+]
+padding = 10
+radius = 10
+start = [ "launcher", "wallpaper", "workspaces", "active_window" ]
+thickness = 30
+
+[bar.default.monitor.DP-3]
+background_opacity = 0.9
+margin_ends = 4
+start = [ "launcher", "wallpaper", "workspaces", "active_window" ]
+
+[bar.default.monitor.HDMI-A-1]
+background_opacity = 0.9
+capsule_group = []
+capsule_opacity = 0.4
+end = [
+    "weather",
+    "media",
+    "volume",
+    "network",
+    "bluetooth",
+    "tray",
+    "notifications",
+    "clipboard",
+    "brightness",
+    "battery",
+    "control-center",
+    "session"
+]
+margin_ends = 4
+start = [ "launcher", "wallpaper", "workspaces", "active_window" ]
+widget_spacing = 8
+
+[location]
+auto_locate = true
+
+[theme]
+builtin = "Catppuccin"
+community_palette = "Catppuccin Mocha Blue"
+wallpaper_scheme = "m3-content"
+
+[widget.battery]
+enabled = false
+
+[widget.brightness]
+enabled = false
+
+[widget.clipboard]
+enabled = false
+
+[widget.clock]
+format = "%A | %d %b %H:%M"
+timezone = "America/Sao_Paulo"
+
+[widget.notifications]
+enabled = false
+
+[widget.wallpaper]
+enabled = false
