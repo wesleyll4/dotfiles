@@ -8,6 +8,7 @@ hl.on("hyprland.start", function()
 end)
 
 hl.bind("SUPER + CTRL + Escape", hl.dsp.exec_cmd("killall waybar || waybar"))
+hl.bind("SUPER + Space", hl.dsp.exec_cmd("walker"))
 hl.bind("SUPER + F2", hl.dsp.exec_cmd("walker -m menus:monitors"))
 hl.bind("SUPER + F1", hl.dsp.exec_cmd("walker -m menus:cheatsheet"))
 hl.bind("SUPER + V", hl.dsp.exec_cmd("walker --provider clipboard"))

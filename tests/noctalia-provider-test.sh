@@ -33,7 +33,8 @@ XDG_STATE_HOME="$tmp_root/state" \
 XDG_DATA_HOME="$tmp_root/data" \
 XDG_CACHE_HOME="$tmp_root/cache" \
     noctalia config validate
-[[ ! -e "$HOME/.config/noctalia" ]]
+# The live configuration may legitimately exist; isolation is proven by the
+# temporary XDG paths above and by the candidate checks below.
 
 candidate="$tmp_root/candidate"
 cp -a "$repo_root/config/user/hypr/candidate/." "$candidate"

@@ -11,3 +11,6 @@ desktop_shell_current_expected_waybar_entries:
 desktop_shell_current_expected_elephant_entries:
   - desktopapplications.toml
   - menus
+desktop_shell_current_shell_slot: "{{ dotfiles_home }}/.config/hypr/integrations/shell.lua"
+desktop_shell_current_shell_source: "{{ dotfiles_root }}/config/user/hypr/candidate/shell/current/shell.lua"
+desktop_shell_current_noctalia_process: noctalia

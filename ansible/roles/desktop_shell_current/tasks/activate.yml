@@ -1,0 +1,136 @@
+---
+- name: Inspect current shell slot
+  ansible.builtin.command:
+    argv: [readlink, "{{ desktop_shell_current_shell_slot }}"]
+  register: current_slot
+  changed_when: false
+  failed_when: false
+
+- name: Snapshot shell provider processes
+  ansible.builtin.command:
+    argv: [pgrep, -x, "{{ provider_process }}"]
+  loop: [waybar, walker, elephant, noctalia]
+  loop_control: { loop_var: provider_process }
+  register: current_processes
+  changed_when: false
+  failed_when: false
+
+- name: Inspect AGS instance state
+  ansible.builtin.command: ags list
+  register: current_ags_state
+  changed_when: false
+  failed_when: false
+
+- name: Assert Noctalia is not duplicated
+  ansible.builtin.assert:
+    that: (current_processes.results | selectattr('provider_process','equalto','noctalia') | selectattr('rc','equalto',0) | list | length) <= 1
+
+- name: Initialize current transition flags
+  ansible.builtin.set_fact:
+    current_slot_switched: false
+    current_noctalia_stopped: false
+    current_provider_started: false
+    current_transition_changed: false
+
+- name: Activate current provider
+  when: not ansible_check_mode
+  block:
+    - name: Stop Noctalia when active
+      ansible.builtin.shell: pkill -x noctalia
+      args: { executable: /bin/bash }
+      when: (current_processes.results | selectattr('provider_process','equalto','noctalia') | selectattr('rc','equalto',0) | list | length) == 1
+      register: stop_noctalia
+      changed_when: true
+
+    - ansible.builtin.set_fact:
+        current_noctalia_stopped: true
+        current_transition_changed: true
+      when: stop_noctalia is changed
+
+    - name: Atomically select current shell slot
+      ansible.builtin.shell: |
+        set -euo pipefail
+        tmp="{{ desktop_shell_current_shell_slot }}.current-$$"
+        ln -s -- "{{ desktop_shell_current_shell_source }}" "$tmp"
+        mv -T -- "$tmp" "{{ desktop_shell_current_shell_slot }}"
+      args: { executable: /bin/bash }
+      when: current_slot.rc != 0 or current_slot.stdout != desktop_shell_current_shell_source
+      register: switch_slot
+      changed_when: true
+
+    - ansible.builtin.set_fact:
+        current_slot_switched: true
+        current_transition_changed: true
+      when: switch_slot is changed
+
+    - name: Start Waybar when absent
+      ansible.builtin.shell: nohup waybar >/dev/null 2>&1 &
+      args: { executable: /bin/bash }
+      when: (current_processes.results | selectattr('provider_process','equalto','waybar') | selectattr('rc','equalto',0) | list | length) == 0
+      changed_when: true
+    - name: Start Walker when absent
+      ansible.builtin.shell: nohup walker --gapplication-service >/dev/null 2>&1 &
+      args: { executable: /bin/bash }
+      when: (current_processes.results | selectattr('provider_process','equalto','walker') | selectattr('rc','equalto',0) | list | length) == 0
+      changed_when: true
+    - name: Start Elephant when absent
+      ansible.builtin.shell: systemctl --user start elephant
+      args: { executable: /bin/bash }
+      when: (current_processes.results | selectattr('provider_process','equalto','elephant') | selectattr('rc','equalto',0) | list | length) == 0
+      changed_when: true
+    - name: Start AGS when absent
+      ansible.builtin.shell: nohup ags run "{{ dotfiles_home }}/.config/ags" >/dev/null 2>&1 &
+      args: { executable: /bin/bash }
+      when: current_ags_state.stdout is not search('mydots')
+      changed_when: true
+
+    - name: Verify AGS instance persists
+      ansible.builtin.command: ags list
+      register: current_ags_after_start
+      changed_when: false
+      until: current_ags_after_start.stdout is search('mydots')
+      retries: 3
+      delay: 1
+
+    - name: Verify current provider exclusivity and process persistence
+      ansible.builtin.shell: |
+        set -euo pipefail
+        pgrep -x waybar >/dev/null
+        pgrep -x walker >/dev/null
+        pgrep -x elephant >/dev/null
+        ags list | grep -q mydots
+        ! pgrep -x noctalia
+      args: { executable: /bin/bash }
+      changed_when: false
+
+    - name: Mark current provider transition
+      ansible.builtin.set_fact:
+        current_provider_started: true
+        current_transition_changed: true
+      when: (current_processes.results | selectattr('provider_process','in',['waybar','walker','elephant']) | selectattr('rc','ne',0) | list | length) > 0 or current_ags_state.stdout is not search('mydots')
+
+    - name: Reload Hyprland after current transition
+      ansible.builtin.command: hyprctl reload
+      changed_when: false
+      when: current_transition_changed
+  rescue:
+    - name: Stop current processes started during rollback
+      ansible.builtin.shell: pkill -x "{{ provider_process }}" || true
+      args: { executable: /bin/bash }
+      loop: [waybar, walker, elephant]
+      loop_control: { loop_var: provider_process }
+      when: current_provider_started
+    - name: Restore Noctalia after rollback
+      ansible.builtin.shell: nohup noctalia --daemon >/dev/null 2>&1 &
+      args: { executable: /bin/bash }
+      when: current_noctalia_stopped
+    - name: Restore Noctalia shell slot after rollback
+      ansible.builtin.shell: |
+        set -euo pipefail
+        tmp="{{ desktop_shell_current_shell_slot }}.rollback-$$"
+        ln -s -- "{{ dotfiles_root }}/config/user/hypr/candidate/shell/noctalia/shell.lua" "$tmp"
+        mv -T -- "$tmp" "{{ desktop_shell_current_shell_slot }}"
+      args: { executable: /bin/bash }
+      when: current_slot_switched and current_noctalia_stopped
+    - ansible.builtin.fail:
+        msg: current shell activation failed; rollback completed

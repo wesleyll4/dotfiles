@@ -113,3 +113,6 @@
     (desktop_shell_current_entry_states.results[entry_index].stat.isreg | default(false)) or
     (desktop_shell_current_entry_states.results[entry_index].stat.islnk | default(false) and
      desktop_shell_current_entry_states.results[entry_index].stat.lnk_source != shell_entry.expected_source)
+
+- name: Activate current shell provider exclusively
+  ansible.builtin.include_tasks: activate.yml

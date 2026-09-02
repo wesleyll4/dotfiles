@@ -40,3 +40,6 @@
       validation: "{{ desktop_shell_noctalia_validation_command }}"
       status: inactive_scaffold
     verbosity: 1
+
+- name: Activate Noctalia provider exclusively
+  ansible.builtin.include_tasks: activate.yml

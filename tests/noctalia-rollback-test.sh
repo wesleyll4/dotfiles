@@ -65,6 +65,7 @@ rollback_actions() {
     [[ "$switched" == true ]] && printf 'restore-shell\n'
     [[ "$stopped" == true ]] && printf 'restart-snapshot-processes\n'
     [[ "$config" == true ]] && printf 'remove-new-config\n'
+    return 0
 }
 
 for failure in before-materialize during-materialize after-materialize before-stop after-stop after-switch after-start; do

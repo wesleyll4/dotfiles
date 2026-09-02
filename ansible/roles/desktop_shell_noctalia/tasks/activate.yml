@@ -1,0 +1,142 @@
+---
+- name: Inspect Noctalia shell slot
+  ansible.builtin.command:
+    argv: [readlink, "{{ dotfiles_home }}/.config/hypr/integrations/shell.lua"]
+  register: noctalia_slot
+  changed_when: false
+  failed_when: false
+
+- name: Snapshot provider processes
+  ansible.builtin.command:
+    argv: [pgrep, -x, "{{ provider_process }}"]
+  loop: [waybar, walker, elephant, noctalia]
+  loop_control: { loop_var: provider_process }
+  register: noctalia_processes
+  changed_when: false
+  failed_when: false
+
+- name: Inspect AGS instance state
+  ansible.builtin.command: ags list
+  register: noctalia_ags_state
+  changed_when: false
+  failed_when: false
+
+- name: Assert Noctalia is not duplicated
+  ansible.builtin.assert:
+    that: (noctalia_processes.results | selectattr('provider_process','equalto','noctalia') | selectattr('rc','equalto',0) | list | length) <= 1
+
+- name: Initialize Noctalia transition flags
+  ansible.builtin.set_fact:
+    noctalia_config_materialized: false
+    noctalia_current_stopped: false
+    noctalia_slot_switched: false
+    noctalia_started: false
+    noctalia_transition_changed: false
+
+- name: Activate Noctalia provider
+  when: not ansible_check_mode
+  block:
+    - name: Create Noctalia config directory
+      ansible.builtin.file:
+        path: "{{ desktop_shell_noctalia_runtime_root }}"
+        state: directory
+        mode: '0755'
+    - name: Materialize Noctalia config
+      ansible.builtin.copy:
+        src: "{{ desktop_shell_noctalia_declarative_root }}/config.toml"
+        dest: "{{ desktop_shell_noctalia_runtime_root }}/config.toml"
+        mode: '0644'
+      register: config_copy
+    - ansible.builtin.set_fact:
+        noctalia_config_materialized: true
+        noctalia_transition_changed: "{{ config_copy is changed }}"
+    - name: Validate Noctalia config
+      ansible.builtin.command: noctalia config validate
+      environment:
+        HOME: "{{ dotfiles_home }}"
+        XDG_CONFIG_HOME: "{{ dotfiles_home }}/.config"
+        XDG_STATE_HOME: "{{ dotfiles_home }}/.local/state"
+      changed_when: false
+    - name: Stop current provider processes
+      ansible.builtin.shell: pkill -x "{{ provider_process }}"
+      args: { executable: /bin/bash }
+      loop: [waybar, walker, elephant]
+      loop_control: { loop_var: provider_process }
+      when: (noctalia_processes.results | selectattr('provider_process','equalto',provider_process) | selectattr('rc','equalto',0) | list | length) == 1
+      register: stopped_current
+      changed_when: true
+    - ansible.builtin.set_fact:
+        noctalia_current_stopped: true
+        noctalia_transition_changed: true
+      when: (stopped_current.results | default([]) | selectattr('changed','equalto',true) | list | length) > 0
+
+    - name: Stop AGS instance when active
+      ansible.builtin.command: ags quit --instance mydots
+      when: noctalia_ags_state.stdout is search('mydots')
+      register: stopped_ags
+      changed_when: true
+    - name: Atomically select Noctalia shell slot
+      ansible.builtin.shell: |
+        set -euo pipefail
+        tmp="{{ dotfiles_home }}/.config/hypr/integrations/shell.lua.noctalia-$$"
+        ln -s -- "{{ desktop_shell_noctalia_shell_candidate_source }}" "$tmp"
+        mv -T -- "$tmp" "{{ dotfiles_home }}/.config/hypr/integrations/shell.lua"
+      args: { executable: /bin/bash }
+      when: noctalia_slot.rc != 0 or noctalia_slot.stdout != desktop_shell_noctalia_shell_candidate_source
+      register: switch_noctalia
+      changed_when: true
+    - ansible.builtin.set_fact:
+        noctalia_slot_switched: true
+        noctalia_transition_changed: true
+      when: switch_noctalia is changed
+    - name: Validate Hyprland before starting Noctalia
+      ansible.builtin.command:
+        argv: [Hyprland, --verify-config, --config, "{{ dotfiles_home }}/.config/hypr/hyprland.lua"]
+      changed_when: false
+    - name: Start Noctalia when absent
+      ansible.builtin.shell: nohup noctalia --daemon >/dev/null 2>&1 &
+      args: { executable: /bin/bash }
+      when: (noctalia_processes.results | selectattr('provider_process','equalto','noctalia') | selectattr('rc','equalto',0) | list | length) == 0
+      register: start_noctalia
+      changed_when: true
+    - ansible.builtin.set_fact:
+        noctalia_started: true
+        noctalia_transition_changed: true
+      when: start_noctalia is changed
+    - name: Confirm Noctalia exclusivity and IPC
+      ansible.builtin.shell: |
+        set -euo pipefail
+        test "$(pgrep -x noctalia | wc -l)" -eq 1
+        ! pgrep -x waybar; ! pgrep -x walker; ! pgrep -x elephant
+        ! ags list | grep -q mydots
+        noctalia msg status >/dev/null
+      args: { executable: /bin/bash }
+      changed_when: false
+    - name: Reload Hyprland after Noctalia transition
+      ansible.builtin.command: hyprctl reload
+      changed_when: false
+      when: noctalia_transition_changed
+  rescue:
+    - name: Stop Noctalia started during rollback
+      ansible.builtin.shell: pkill -x noctalia || true
+      args: { executable: /bin/bash }
+      when: noctalia_started
+    - name: Restore current shell slot after rollback
+      ansible.builtin.shell: |
+        set -euo pipefail
+        tmp="{{ dotfiles_home }}/.config/hypr/integrations/shell.lua.current-rollback-$$"
+        ln -s -- "{{ dotfiles_root }}/config/user/hypr/candidate/shell/current/shell.lua" "$tmp"
+        mv -T -- "$tmp" "{{ dotfiles_home }}/.config/hypr/integrations/shell.lua"
+      args: { executable: /bin/bash }
+      when: noctalia_slot_switched
+    - name: Restart current provider after rollback
+      ansible.builtin.shell: |
+        set -euo pipefail
+        nohup waybar >/dev/null 2>&1 &
+        nohup walker --gapplication-service >/dev/null 2>&1 &
+        systemctl --user start elephant
+        nohup ags run "{{ dotfiles_home }}/.config/ags" >/dev/null 2>&1 &
+      args: { executable: /bin/bash }
+      when: noctalia_current_stopped
+    - ansible.builtin.fail:
+        msg: Noctalia activation failed; current provider restored
