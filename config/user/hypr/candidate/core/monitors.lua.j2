@@ -1,4 +1,13 @@
 {% for monitor in hyprland_monitors %}
+{% if monitor.output == 'DP-3' %}
+local dp3_enabled = {
+    output = {{ monitor.output | to_json }},
+    mode = {{ monitor.mode | to_json }},
+    position = {{ monitor.position | to_json }},
+    scale = {{ monitor.scale | to_json }},{% if monitor.disabled is defined %}
+    disabled = {{ monitor.disabled | to_json }},{% endif %}
+}
+{% endif %}
 hl.monitor({
     output = {{ monitor.output | to_json }},
     mode = {{ monitor.mode | to_json }},
@@ -7,3 +16,15 @@ hl.monitor({
     disabled = {{ monitor.disabled | to_json }},{% endif %}
 })
 {% endfor %}
+
+local function toggle_dp3()
+    if hl.get_monitor("DP-3") then
+        hl.monitor({ output = "DP-3", disabled = true })
+    else
+        hl.monitor(dp3_enabled)
+    end
+end
+
+return {
+    toggle_dp3 = toggle_dp3,
+}

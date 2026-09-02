@@ -126,6 +126,22 @@ grep -F 'position = "2560x0"' "$repo_root/config/user/hypr/candidate/core/monito
 grep -F 'output = "HDMI-A-1"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
 grep -F 'mode = "2560x1080@60"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
 grep -F 'position = "0x0"' "$repo_root/config/user/hypr/candidate/core/monitors.lua" >/dev/null
+
+core_binds="$repo_root/config/user/hypr/candidate/core/binds.lua"
+core_monitors="$repo_root/config/user/hypr/candidate/core/monitors.lua"
+current_shell="$repo_root/config/user/hypr/candidate/shell/current/shell.lua"
+noctalia_shell="$repo_root/config/user/hypr/candidate/shell/noctalia/shell.lua"
+grep -F 'local monitors = require("core/monitors")' "$core_binds" >/dev/null
+grep -F 'hl.bind(mod .. " + CTRL + M", monitors.toggle_dp3)' "$core_binds" >/dev/null
+grep -F 'local function toggle_dp3()' "$core_monitors" >/dev/null
+grep -F 'hl.get_monitor("DP-3")' "$core_monitors" >/dev/null
+grep -F 'hl.monitor({ output = "DP-3", disabled = true })' "$core_monitors" >/dev/null
+grep -F 'hl.monitor(dp3_enabled)' "$core_monitors" >/dev/null
+! grep -F 'SUPER + CTRL + M' "$current_shell" >/dev/null
+! grep -F 'SUPER + CTRL + M' "$noctalia_shell" >/dev/null
+grep -F '../profiles/desktop.yml' "$repo_root/ansible/playbooks/desktop.yml" >/dev/null
+grep -F '../profiles/desktop.yml' "$repo_root/ansible/playbooks/desktop-noctalia.yml" >/dev/null
+grep -F 'name: desktop_hyprland' "$repo_root/ansible/playbooks/hyprland-cutover.yml" >/dev/null
 test_launcher_uses_local_wallpaper
 test_launcher_uses_fallback_without_local_images
 python "$repo_root/scripts/validate-greetd.py" "$repo_root/greetd/etc/greetd"
