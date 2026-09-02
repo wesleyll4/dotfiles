@@ -133,6 +133,8 @@ current_shell="$repo_root/config/user/hypr/candidate/shell/current/shell.lua"
 noctalia_shell="$repo_root/config/user/hypr/candidate/shell/noctalia/shell.lua"
 grep -F 'local monitors = require("core/monitors")' "$core_binds" >/dev/null
 grep -F 'hl.bind(mod .. " + CTRL + M", monitors.toggle_dp3)' "$core_binds" >/dev/null
+grep -F 'hl.bind(mod .. " + H", hl.dsp.focus({ direction = "l" }))' "$core_binds" >/dev/null
+grep -F 'hl.bind(mod .. " + L", hl.dsp.focus({ direction = "r" }))' "$core_binds" >/dev/null
 grep -F 'local function toggle_dp3()' "$core_monitors" >/dev/null
 grep -F 'hl.get_monitor("DP-3")' "$core_monitors" >/dev/null
 grep -F 'hl.monitor({ output = "DP-3", disabled = true })' "$core_monitors" >/dev/null

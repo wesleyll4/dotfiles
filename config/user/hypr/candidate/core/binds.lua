@@ -6,6 +6,8 @@ hl.bind(mod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mod .. " + CTRL + V", hl.dsp.window.float())
 hl.bind(mod .. " + ALT + J", hl.dsp.layout("togglesplit"))
 hl.bind(mod .. " + CTRL + M", monitors.toggle_dp3)
+hl.bind(mod .. " + H", hl.dsp.focus({ direction = "l" }))
+hl.bind(mod .. " + L", hl.dsp.focus({ direction = "r" }))
 
 for key, direction in pairs({ left = "l", right = "r", up = "u", down = "d" }) do
     hl.bind(mod .. " + " .. key, hl.dsp.focus({ direction = direction }))
