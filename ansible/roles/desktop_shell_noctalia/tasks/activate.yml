@@ -75,6 +75,15 @@
       when: noctalia_ags_state.stdout is search('mydots')
       register: stopped_ags
       changed_when: true
+
+    - name: Wait for AGS instance to exit
+      ansible.builtin.command: ags list
+      register: ags_after_stop
+      changed_when: false
+      until: ags_after_stop.stdout is not search('mydots')
+      retries: 10
+      delay: 1
+      when: stopped_ags is changed
     - name: Atomically select Noctalia shell slot
       ansible.builtin.shell: |
         set -euo pipefail
@@ -99,6 +108,16 @@
       when: (noctalia_processes.results | selectattr('provider_process','equalto','noctalia') | selectattr('rc','equalto',0) | list | length) == 0
       register: start_noctalia
       changed_when: true
+
+    - name: Wait for Noctalia process to appear exactly once
+      ansible.builtin.shell: test "$(pgrep -x noctalia | wc -l)" -eq 1
+      args: { executable: /bin/bash }
+      register: noctalia_after_start
+      changed_when: false
+      until: noctalia_after_start.rc == 0
+      retries: 10
+      delay: 1
+      when: start_noctalia is changed
     - ansible.builtin.set_fact:
         noctalia_started: true
         noctalia_transition_changed: true

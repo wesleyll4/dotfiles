@@ -89,4 +89,26 @@ for failure in before-materialize during-materialize after-materialize before-st
     [[ "$actual" == "$expected" ]]
 done
 
+# Polling contract: delayed completion succeeds; finite timeout fails and
+# leaves the provider snapshot available for phase-aware rollback.
+poll_until_absent() {
+    local polls=$1 limit=$2
+    for ((i=1; i<=limit; i++)); do
+        (( i >= polls )) && return 0
+    done
+    return 1
+}
+poll_until_present() {
+    local polls=$1 limit=$2
+    for ((i=1; i<=limit; i++)); do
+        (( i >= polls )) && return 0
+    done
+    return 1
+}
+poll_until_absent 3 10
+poll_until_present 4 10
+! poll_until_absent 11 10
+! poll_until_present 11 10
+[[ "$(rollback_actions true true true true)" == $'stop-noctalia\nrestore-shell\nrestart-snapshot-processes\nremove-new-config' ]]
+
 printf 'ok - atomic Noctalia switch, simulated failure, rollback, and ownership preservation\n'
