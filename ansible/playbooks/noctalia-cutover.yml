@@ -1,0 +1,243 @@
+---
+- name: Cut over desktop shell to Noctalia
+  hosts: local
+  gather_facts: false
+  vars:
+    live_home: "{{ dotfiles_home }}"
+    shell_slot: "{{ live_home }}/.config/hypr/integrations/shell.lua"
+    current_shell: "{{ dotfiles_root }}/config/user/hypr/candidate/shell/current/shell.lua"
+    noctalia_shell: "{{ dotfiles_root }}/config/user/hypr/candidate/shell/noctalia/shell.lua"
+    noctalia_config_source: "{{ dotfiles_root }}/config/user/desktop-shell/noctalia/config.toml"
+    live_hyprland: "{{ live_home }}/.config/hypr/hyprland.lua"
+    noctalia_config_materialized: false
+    current_provider_stopped: false
+    shell_slot_switched: false
+    noctalia_started: false
+    hyprland_reloaded: false
+  pre_tasks:
+    - name: Confirm current shell slot before mutation
+      ansible.builtin.command:
+        argv: [readlink, "{{ shell_slot }}"]
+      register: cutover_shell_before
+      changed_when: false
+      failed_when: cutover_shell_before.stdout != current_shell
+
+    - name: Snapshot current provider processes
+      ansible.builtin.command:
+        argv: [pgrep, -x, "{{ provider_process }}"]
+      loop: [waybar, walker, elephant, ags, noctalia, hypridle]
+      loop_control:
+        loop_var: provider_process
+      register: cutover_process_snapshot
+      changed_when: false
+      failed_when: false
+
+    - name: Assert expected provider state
+      ansible.builtin.assert:
+        that:
+          - (cutover_process_snapshot.results | selectattr('provider_process', 'equalto', 'noctalia') | selectattr('rc', 'equalto', 0) | list | length) == 0
+          - (cutover_process_snapshot.results | selectattr('provider_process', 'in', ['waybar', 'walker', 'elephant', 'ags']) | selectattr('rc', 'equalto', 0) | list | length) == 4
+          - (cutover_process_snapshot.results | selectattr('provider_process', 'equalto', 'hypridle') | selectattr('rc', 'equalto', 0) | list | length) == 1
+        fail_msg: live provider snapshot differs from the approved current state
+
+    - name: Snapshot application and session sources
+      ansible.builtin.stat:
+        path: "{{ source_path }}"
+        checksum_algorithm: sha256
+      loop:
+        - "{{ dotfiles_root }}/config/user/hypr/candidate/integrations/apps.lua"
+        - "{{ dotfiles_root }}/config/user/hypr/candidate/integrations/session.lua"
+      loop_control:
+        loop_var: source_path
+      register: cutover_source_snapshot
+      changed_when: false
+
+    - name: Snapshot existing Noctalia configuration directory
+      ansible.builtin.stat:
+        path: "{{ live_home }}/.config/noctalia"
+        follow: false
+      register: cutover_noctalia_config_before
+      changed_when: false
+
+  tasks:
+    - name: Apply Noctalia shell cutover as one transaction
+      block:
+        - name: Materialize Noctalia configuration
+          ansible.builtin.file:
+            path: "{{ live_home }}/.config/noctalia"
+            state: directory
+            mode: '0755'
+
+        - name: Copy Noctalia configuration into prepared directory
+          ansible.builtin.copy:
+            src: "{{ noctalia_config_source }}"
+            dest: "{{ live_home }}/.config/noctalia/config.toml"
+            mode: '0644'
+
+        - name: Mark Noctalia configuration materialized
+          ansible.builtin.set_fact:
+            noctalia_config_materialized: true
+
+        - name: Prepare Noctalia runtime state directory
+          ansible.builtin.file:
+            path: "{{ live_home }}/.local/state/noctalia"
+            state: directory
+            mode: '0700'
+
+        - name: Validate materialized Noctalia configuration
+          ansible.builtin.command: noctalia config validate
+          environment:
+            HOME: "{{ live_home }}"
+            XDG_CONFIG_HOME: "{{ live_home }}/.config"
+            XDG_STATE_HOME: "{{ live_home }}/.local/state"
+          register: cutover_noctalia_validate
+          changed_when: false
+
+        - name: Validate current Hyprland entrypoint before slot change
+          ansible.builtin.command:
+            argv: [Hyprland, --verify-config, --config, "{{ live_hyprland }}"]
+          register: cutover_hypr_before
+          changed_when: false
+          failed_when: cutover_hypr_before.rc != 0 or 'config ok' not in cutover_hypr_before.stdout
+
+        - name: Stop current shell provider processes
+          ansible.builtin.shell: |
+            set -e
+            pkill -x "{{ provider_process }}" || true
+          args:
+            executable: /bin/bash
+          loop: [waybar, walker, elephant, ags]
+          loop_control:
+            loop_var: provider_process
+          changed_when: true
+
+        - name: Mark current provider stopped
+          ansible.builtin.set_fact:
+            current_provider_stopped: true
+
+        - name: Atomically replace shell integration slot
+          ansible.builtin.shell: |
+            set -euo pipefail
+            tmp="{{ shell_slot }}.noctalia-new-$$"
+            ln -s -- "{{ noctalia_shell }}" "$tmp"
+            mv -T -- "$tmp" "{{ shell_slot }}"
+          args:
+            executable: /bin/bash
+
+        - name: Mark shell slot switched
+          ansible.builtin.set_fact:
+            shell_slot_switched: true
+
+        - name: Validate Noctalia Hyprland entrypoint after slot change
+          ansible.builtin.command:
+            argv: [Hyprland, --verify-config, --config, "{{ live_hyprland }}"]
+          register: cutover_hypr_after
+          changed_when: false
+          failed_when: cutover_hypr_after.rc != 0 or 'config ok' not in cutover_hypr_after.stdout
+
+        - name: Start Noctalia exactly once
+          ansible.builtin.shell: |
+            set -euo pipefail
+            nohup noctalia --daemon >"{{ live_home }}/.local/state/noctalia/cutover.log" 2>&1 &
+          args:
+            executable: /bin/bash
+            creates: "{{ live_home }}/.local/state/noctalia/cutover.log"
+          register: cutover_noctalia_start
+
+        - name: Mark Noctalia started
+          ansible.builtin.set_fact:
+            noctalia_started: true
+
+        - name: Confirm one Noctalia process and no current shell processes
+          ansible.builtin.shell: |
+            set -euo pipefail
+            test "$(pgrep -x noctalia | wc -l)" -eq 1
+            ! pgrep -x waybar
+            ! pgrep -x walker
+            ! pgrep -x elephant
+            ! pgrep -x ags
+          args:
+            executable: /bin/bash
+          changed_when: false
+
+        - name: Confirm Noctalia IPC responds
+          ansible.builtin.command: noctalia msg status
+          environment:
+            HOME: "{{ live_home }}"
+            XDG_CONFIG_HOME: "{{ live_home }}/.config"
+            XDG_STATE_HOME: "{{ live_home }}/.local/state"
+          register: cutover_noctalia_status
+          changed_when: false
+
+        - name: Reload Hyprland once after complete cutover
+          ansible.builtin.command: hyprctl reload
+          changed_when: false
+          register: cutover_reload
+
+        - name: Mark Hyprland reloaded
+          ansible.builtin.set_fact:
+            hyprland_reloaded: true
+
+      rescue:
+        - name: Stop Noctalia during rollback when it was started
+          ansible.builtin.shell: pkill -x noctalia || true
+          args:
+            executable: /bin/bash
+          changed_when: true
+          when: noctalia_started
+
+        - name: Restore current shell slot atomically when it was switched
+          ansible.builtin.shell: |
+            set -euo pipefail
+            tmp="{{ shell_slot }}.current-recovery-$$"
+            ln -s -- "{{ current_shell }}" "$tmp"
+            mv -T -- "$tmp" "{{ shell_slot }}"
+          args:
+            executable: /bin/bash
+          when: shell_slot_switched
+
+        - name: Remove newly materialized Noctalia configuration
+          ansible.builtin.file:
+            path: "{{ live_home }}/.config/noctalia"
+            state: absent
+          when:
+            - noctalia_config_materialized
+            - not (cutover_noctalia_config_before.stat.exists | default(false))
+
+        - name: Restart current provider processes from snapshot after stop
+          ansible.builtin.shell: |
+            set -e
+            {{ restart_command }}
+          args:
+            executable: /bin/bash
+          loop:
+            - { name: waybar, command: 'waybar &' }
+            - { name: walker, command: 'walker --gapplication-service &' }
+            - { name: elephant, command: 'systemctl --user restart elephant' }
+            - { name: ags, command: 'ags run "$HOME/.config/ags" &' }
+          loop_control:
+            loop_var: restart_provider
+          vars:
+            restart_command: "{{ restart_provider.command }}"
+          when:
+            - current_provider_stopped
+            - >-
+              (cutover_process_snapshot.results |
+               selectattr('provider_process', 'equalto', restart_provider.name) |
+               selectattr('rc', 'equalto', 0) | list | length) == 1
+
+        - name: Validate restored Hyprland entrypoint
+          ansible.builtin.command:
+            argv: [Hyprland, --verify-config, --config, "{{ live_hyprland }}"]
+          register: cutover_rollback_verify
+          changed_when: false
+          failed_when: cutover_rollback_verify.rc != 0 or 'config ok' not in cutover_rollback_verify.stdout
+
+        - name: Reload restored Hyprland only when rollback is valid
+          ansible.builtin.command: hyprctl reload
+          changed_when: false
+          when: hyprland_reloaded or shell_slot_switched
+
+        - name: Stop after rollback
+          ansible.builtin.fail:
+            msg: Noctalia cutover failed; current provider restored atomically

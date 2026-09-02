@@ -59,4 +59,33 @@ test -e "$slot"
 [[ ! -e "$runtime/processes/noctalia" ]]
 [[ -f "$runtime/processes/current" ]]
 
+rollback_actions() {
+    local config=$1 stopped=$2 switched=$3 started=$4
+    [[ "$started" == true ]] && printf 'stop-noctalia\n'
+    [[ "$switched" == true ]] && printf 'restore-shell\n'
+    [[ "$stopped" == true ]] && printf 'restart-snapshot-processes\n'
+    [[ "$config" == true ]] && printf 'remove-new-config\n'
+}
+
+for failure in before-materialize during-materialize after-materialize before-stop after-stop after-switch after-start; do
+    case "$failure" in
+        before-materialize) expected='';;
+        during-materialize) expected='';;
+        after-materialize) expected='remove-new-config';;
+        before-stop) expected='remove-new-config';;
+        after-stop) expected=$'restart-snapshot-processes\nremove-new-config';;
+        after-switch) expected=$'restore-shell\nrestart-snapshot-processes\nremove-new-config';;
+        after-start) expected=$'stop-noctalia\nrestore-shell\nrestart-snapshot-processes\nremove-new-config';;
+    esac
+    case "$failure" in
+        before-materialize) actual=$(rollback_actions false false false false);;
+        during-materialize) actual=$(rollback_actions false false false false);;
+        after-materialize|before-stop) actual=$(rollback_actions true false false false);;
+        after-stop) actual=$(rollback_actions true true false false);;
+        after-switch) actual=$(rollback_actions true true true false);;
+        after-start) actual=$(rollback_actions true true true true);;
+    esac
+    [[ "$actual" == "$expected" ]]
+done
+
 printf 'ok - atomic Noctalia switch, simulated failure, rollback, and ownership preservation\n'
