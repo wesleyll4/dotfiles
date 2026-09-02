@@ -1,0 +1,12 @@
+---
+- name: Exercise Omarchy Foot override role
+  hosts: local
+  gather_facts: false
+  vars:
+    dotfiles_root: "{{ lookup('env', 'DOTFILES_TEST_ROOT') }}"
+    dotfiles_home: "{{ lookup('env', 'DOTFILES_TEST_HOME') }}"
+    omarchy_foot_scrollback_source: "{{ lookup('env', 'DOTFILES_TEST_SOURCE') }}/config/user/omarchy/bin/dotfiles-foot-scrollback-nvim"
+  tasks:
+    - name: Include Omarchy Foot override role
+      ansible.builtin.include_role:
+        name: omarchy_foot_overrides

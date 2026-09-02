@@ -1,0 +1,5 @@
+---
+omarchy_foot_target: "{{ dotfiles_home }}/.config/foot/foot.ini"
+omarchy_foot_scrollback_source: "{{ dotfiles_root }}/config/user/omarchy/bin/dotfiles-foot-scrollback-nvim"
+omarchy_foot_scrollback_target: "{{ dotfiles_home }}/.local/bin/dotfiles-foot-scrollback-nvim"
+omarchy_foot_overlay_source: "{{ dotfiles_root }}/config/user/omarchy/foot/key-bindings.overlay.ini"

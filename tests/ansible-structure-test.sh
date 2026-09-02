@@ -58,6 +58,8 @@ for path in \
     tests/omarchy-profile-test.sh \
     tests/omarchy-toggle-test.sh \
     tests/omarchy-overlay-policy-test.sh \
+    tests/fixtures/omarchy-foot.yml \
+    tests/omarchy-foot-test.sh \
     ansible/roles/packages/defaults/main.yml \
     ansible/roles/packages/tasks/main.yml \
     ansible/roles/packages/tasks/backend_arch.yml \

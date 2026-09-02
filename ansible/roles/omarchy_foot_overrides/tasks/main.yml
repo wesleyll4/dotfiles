@@ -1,0 +1,88 @@
+---
+- name: Assert Omarchy Foot sources exist
+  ansible.builtin.assert:
+    that:
+      - omarchy_foot_scrollback_source is file
+      - omarchy_foot_overlay_source is file
+    fail_msg: Omarchy Foot override source is missing
+
+- name: Ensure user executable directory exists
+  ansible.builtin.file:
+    path: "{{ omarchy_foot_scrollback_target | dirname }}"
+    state: directory
+    mode: '0755'
+
+- name: Inspect Foot scrollback helper without following links
+  ansible.builtin.stat:
+    path: "{{ omarchy_foot_scrollback_target }}"
+    follow: false
+  register: omarchy_foot_scrollback_state
+
+- name: Read existing Foot scrollback helper for ownership
+  ansible.builtin.set_fact:
+    omarchy_foot_scrollback_content: >-
+      {{ lookup('ansible.builtin.file', omarchy_foot_scrollback_target)
+         if (omarchy_foot_scrollback_state.stat.isreg | default(false)) else '' }}
+
+- name: Classify existing Foot scrollback helper ownership
+  ansible.builtin.set_fact:
+    omarchy_foot_scrollback_owned: >-
+      {{ (omarchy_foot_scrollback_state.stat.isreg | default(false)) and
+         (omarchy_foot_scrollback_content is search('^# DOTFILES MANAGED: omarchy$', multiline=True)) }}
+
+- name: Refuse a preexisting non-owned Foot scrollback helper
+  ansible.builtin.assert:
+    that:
+      - not (omarchy_foot_scrollback_state.stat.exists | default(false)) or omarchy_foot_scrollback_owned
+    fail_msg: existing Foot scrollback helper is not owned by dotfiles
+
+- name: Materialize or update the owned Foot scrollback helper
+  ansible.builtin.copy:
+    src: "{{ omarchy_foot_scrollback_source }}"
+    dest: "{{ omarchy_foot_scrollback_target }}"
+    mode: '0755'
+    force: true
+
+- name: Require Foot configuration to be a regular file
+  ansible.builtin.stat:
+    path: "{{ omarchy_foot_target }}"
+    follow: false
+  register: omarchy_foot_state
+
+- name: Read native Foot configuration
+  ansible.builtin.set_fact:
+    omarchy_foot_content: "{{ lookup('ansible.builtin.file', omarchy_foot_target) if (omarchy_foot_state.stat.isreg | default(false)) else '' }}"
+
+- name: Require one existing key-bindings section in Foot configuration
+  ansible.builtin.assert:
+    that:
+      - omarchy_foot_state.stat.exists | default(false)
+      - omarchy_foot_state.stat.isreg | default(false)
+      - not (omarchy_foot_state.stat.islnk | default(false))
+      - (omarchy_foot_content | regex_findall('(?m)^\[key-bindings\][ \t]*$')) | length == 1
+    fail_msg: Foot foot.ini must be an owned regular file with one [key-bindings] section
+
+- name: Remove only the managed Foot block from conflict analysis
+  ansible.builtin.set_fact:
+    omarchy_foot_unmanaged_content: >-
+      {{ omarchy_foot_content | regex_replace('(?ms)^# BEGIN DOTFILES OMARCHY FOOT\n.*?^# END DOTFILES OMARCHY FOOT\n?', '') }}
+
+- name: Extract the native Foot key-bindings section
+  ansible.builtin.set_fact:
+    omarchy_foot_key_bindings_sections: >-
+      {{ omarchy_foot_unmanaged_content | regex_findall('(?ms)^\[key-bindings\][ \t]*\n.*?(?=^\[|\Z)') }}
+
+- name: Reject an external Ctrl+Shift+H binding
+  ansible.builtin.assert:
+    that:
+      - omarchy_foot_key_bindings_sections | length == 1
+      - >-
+        not (omarchy_foot_key_bindings_sections[0] is search('(?mi)^[ \t]*(?![#;])[^=\n]+=[^\n]*Control[ \t]*\+[ \t]*Shift[ \t]*\+[ \t]*h(?:[ \t]|$)'))
+    fail_msg: Control+Shift+h is already claimed by the native/user Foot bindings
+
+- name: Add or update only the managed Foot key binding block
+  ansible.builtin.blockinfile:
+    path: "{{ omarchy_foot_target }}"
+    marker: "# {mark} DOTFILES OMARCHY FOOT"
+    insertafter: '^\[key-bindings\][ \t]*$'
+    block: "{{ lookup('ansible.builtin.file', omarchy_foot_overlay_source) }}"

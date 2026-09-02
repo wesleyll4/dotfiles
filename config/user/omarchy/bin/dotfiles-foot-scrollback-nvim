@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# DOTFILES MANAGED: omarchy
+set -euo pipefail
+
+scrollback_file=$(mktemp "${TMPDIR:-/tmp}/dotfiles-foot-scrollback.XXXXXX")
+trap 'rm -f -- "$scrollback_file"' EXIT
+cat >"$scrollback_file"
+foot nvim -R + "$scrollback_file"
