@@ -1,0 +1,43 @@
+---
+- name: Assert Omarchy Mise overlay source exists
+  ansible.builtin.assert:
+    that:
+      - omarchy_mise_overlay_source is file
+    fail_msg: Omarchy Mise overlay source is missing
+
+- name: Ensure user Mise fragment directory exists
+  ansible.builtin.file:
+    path: "{{ omarchy_mise_overlay_target | dirname }}"
+    state: directory
+    mode: '0755'
+
+- name: Inspect existing Omarchy Mise overlay without following links
+  ansible.builtin.stat:
+    path: "{{ omarchy_mise_overlay_target }}"
+    follow: false
+  register: omarchy_mise_overlay_state
+
+- name: Read existing Omarchy Mise overlay for ownership
+  ansible.builtin.set_fact:
+    omarchy_mise_overlay_content: >-
+      {{ lookup('ansible.builtin.file', omarchy_mise_overlay_target)
+         if (omarchy_mise_overlay_state.stat.isreg | default(false)) else '' }}
+
+- name: Classify existing Omarchy Mise overlay ownership
+  ansible.builtin.set_fact:
+    omarchy_mise_overlay_owned: >-
+      {{ (omarchy_mise_overlay_state.stat.isreg | default(false)) and
+         (omarchy_mise_overlay_content is search('^# DOTFILES MANAGED: omarchy$', multiline=True)) }}
+
+- name: Refuse a preexisting non-owned Mise overlay
+  ansible.builtin.assert:
+    that:
+      - not (omarchy_mise_overlay_state.stat.exists | default(false)) or omarchy_mise_overlay_owned
+    fail_msg: existing Omarchy Mise overlay is not owned by dotfiles
+
+- name: Materialize or update the owned Omarchy Mise overlay
+  ansible.builtin.copy:
+    src: "{{ omarchy_mise_overlay_source }}"
+    dest: "{{ omarchy_mise_overlay_target }}"
+    mode: '0644'
+    force: true

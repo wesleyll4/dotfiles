@@ -1,0 +1,17 @@
+---
+- name: Exercise Omarchy overlay role
+  hosts: local
+  gather_facts: false
+  vars:
+    dotfiles_root: "{{ lookup('env', 'DOTFILES_TEST_ROOT') }}"
+    dotfiles_home: "{{ lookup('env', 'DOTFILES_TEST_HOME') }}"
+    omarchy_toggle_dp3_source: "{{ lookup('env', 'DOTFILES_TEST_SOURCE') }}/config/user/omarchy/bin/dotfiles-toggle-dp3"
+    omarchy_mise_overlay_source: "{{ lookup('env', 'DOTFILES_TEST_SOURCE') }}/config/user/mise/conf.d/omarchy-development.toml"
+  tasks:
+    - name: Include Omarchy development role
+      ansible.builtin.include_role:
+        name: omarchy_development
+
+    - name: Include Omarchy override role
+      ansible.builtin.include_role:
+        name: omarchy_hypr_overrides

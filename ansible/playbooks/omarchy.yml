@@ -1,0 +1,17 @@
+---
+- name: Provision Omarchy overlay profile
+  hosts: local
+  gather_facts: true
+  vars_files:
+    - ../profiles/omarchy.yml
+  pre_tasks:
+    - name: Validate selected Arch-compatible platform
+      ansible.builtin.include_role:
+        name: platform_arch
+  tasks:
+    - name: Compose selected Omarchy overlay roles
+      ansible.builtin.include_role:
+        name: "{{ profile_role }}"
+      loop: "{{ profile_roles }}"
+      loop_control:
+        loop_var: profile_role

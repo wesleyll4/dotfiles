@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# DOTFILES MANAGED: omarchy
+set -euo pipefail
+
+monitor_state=$(hyprctl monitors all -j | jq -r '
+    first(.[] | select(.name == "DP-3")
+      | if (.disabled // false) then "disabled" else "active" end) // empty
+')
+
+case $monitor_state in
+    active)
+        hyprctl eval 'hl.monitor({ output = "DP-3", disabled = true })'
+        ;;
+    disabled)
+        hyprctl eval 'hl.monitor({ output = "DP-3", disabled = false, mode = "1920x1080@60", position = "2560x0", scale = 1 })'
+        ;;
+    '')
+        printf 'DP-3 is physically absent; nothing to toggle\n' >&2
+        exit 1
+        ;;
+    *)
+        printf 'unable to determine DP-3 state: %s\n' "$monitor_state" >&2
+        exit 1
+        ;;
+esac

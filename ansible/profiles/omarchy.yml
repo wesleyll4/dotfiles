@@ -1,0 +1,6 @@
+---
+dotfiles_profile_name: omarchy
+profile_roles:
+  - common
+  - omarchy_hypr_overrides
+  - omarchy_development

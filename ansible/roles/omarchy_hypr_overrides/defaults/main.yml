@@ -1,0 +1,7 @@
+---
+omarchy_hypr_monitors_target: "{{ dotfiles_home }}/.config/hypr/monitors.lua"
+omarchy_hypr_bindings_target: "{{ dotfiles_home }}/.config/hypr/bindings.lua"
+omarchy_hypr_monitors_overlay_source: "{{ dotfiles_root }}/config/user/omarchy/hypr/monitors.overlay.lua"
+omarchy_hypr_bindings_overlay_source: "{{ dotfiles_root }}/config/user/omarchy/hypr/bindings.overlay.lua"
+omarchy_toggle_dp3_source: "{{ dotfiles_root }}/config/user/omarchy/bin/dotfiles-toggle-dp3"
+omarchy_toggle_dp3_target: "{{ dotfiles_home }}/.local/bin/dotfiles-toggle-dp3"

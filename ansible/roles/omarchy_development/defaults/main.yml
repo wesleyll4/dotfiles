@@ -1,0 +1,3 @@
+---
+omarchy_mise_overlay_source: "{{ dotfiles_root }}/config/user/mise/conf.d/omarchy-development.toml"
+omarchy_mise_overlay_target: "{{ dotfiles_home }}/.config/mise/conf.d/omarchy-development.toml"

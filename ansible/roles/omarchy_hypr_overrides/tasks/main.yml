@@ -1,0 +1,140 @@
+---
+- name: Assert Omarchy Hyprland overlay sources exist
+  ansible.builtin.assert:
+    that:
+      - omarchy_hypr_monitors_overlay_source is file
+      - omarchy_hypr_bindings_overlay_source is file
+      - omarchy_toggle_dp3_source is file
+    fail_msg: Omarchy Hyprland overlay source is missing
+
+- name: Ensure user executable directory exists
+  ansible.builtin.file:
+    path: "{{ omarchy_toggle_dp3_target | dirname }}"
+    state: directory
+    mode: '0755'
+
+- name: Inspect DP-3 toggle target without following links
+  ansible.builtin.stat:
+    path: "{{ omarchy_toggle_dp3_target }}"
+    follow: false
+  register: omarchy_toggle_dp3_state
+
+- name: Read existing DP-3 toggle for ownership
+  ansible.builtin.set_fact:
+    omarchy_toggle_dp3_content: >-
+      {{ lookup('ansible.builtin.file', omarchy_toggle_dp3_target)
+         if (omarchy_toggle_dp3_state.stat.isreg | default(false)) else '' }}
+
+- name: Classify existing DP-3 toggle ownership
+  ansible.builtin.set_fact:
+    omarchy_toggle_dp3_owned: >-
+      {{ (omarchy_toggle_dp3_state.stat.isreg | default(false)) and
+         (omarchy_toggle_dp3_content is search('^# DOTFILES MANAGED: omarchy$', multiline=True)) }}
+
+- name: Refuse a preexisting non-owned DP-3 toggle
+  ansible.builtin.assert:
+    that:
+      - not (omarchy_toggle_dp3_state.stat.exists | default(false)) or omarchy_toggle_dp3_owned
+    fail_msg: existing DP-3 toggle is not owned by dotfiles
+
+- name: Materialize or update the owned DP-3 toggle
+  ansible.builtin.copy:
+    src: "{{ omarchy_toggle_dp3_source }}"
+    dest: "{{ omarchy_toggle_dp3_target }}"
+    mode: '0755'
+    force: true
+
+- name: Inspect native Omarchy monitors file
+  ansible.builtin.stat:
+    path: "{{ omarchy_hypr_monitors_target }}"
+    follow: false
+  register: omarchy_monitors_state
+
+- name: Require the native monitors file to remain a regular file
+  ansible.builtin.assert:
+    that:
+      - omarchy_monitors_state.stat.exists | default(false)
+      - omarchy_monitors_state.stat.isreg | default(false)
+      - not (omarchy_monitors_state.stat.islnk | default(false))
+    fail_msg: native Omarchy monitors.lua must remain an existing regular file
+
+- name: Read native Omarchy monitors file
+  ansible.builtin.set_fact:
+    omarchy_monitors_content: "{{ lookup('ansible.builtin.file', omarchy_hypr_monitors_target) }}"
+
+- name: Remove only the managed monitor block from conflict analysis
+  ansible.builtin.set_fact:
+    omarchy_monitors_unmanaged_content: >-
+      {{ omarchy_monitors_content | regex_replace('(?ms)^-- BEGIN DOTFILES OMARCHY MONITORS\n.*?^-- END DOTFILES OMARCHY MONITORS\n?', '') }}
+
+- name: Extract monitor calls as independent blocks
+  ansible.builtin.set_fact:
+    omarchy_monitor_blocks: >-
+      {{ omarchy_monitors_unmanaged_content | regex_findall('(?ms)^[ \t]*hl\.monitor\(\s*\{[^{}]*\}\s*\)') }}
+
+- name: Classify monitor rules by complete individual call
+  ansible.builtin.set_fact:
+    omarchy_hdmi_blocks: >-
+      {{ omarchy_monitor_blocks | select('search', 'output\s*=\s*["'']HDMI-A-1["'']') | list }}
+    omarchy_dp3_blocks: >-
+      {{ omarchy_monitor_blocks | select('search', 'output\s*=\s*["'']DP-3["'']') | list }}
+    omarchy_hdmi_matching_blocks: >-
+      {{ omarchy_monitor_blocks | select('search', 'output\s*=\s*[\"'']HDMI-A-1[\"'']') | select('search', 'mode\s*=\s*[\"'']2560x1080@60[\"'']') | select('search', 'position\s*=\s*[\"'']0x0[\"'']') | select('search', 'scale\s*=\s*1(?:\s*[,}])') | list }}
+    omarchy_dp3_matching_blocks: >-
+      {{ omarchy_monitor_blocks | select('search', 'output\s*=\s*[\"'']DP-3[\"'']') | select('search', 'mode\s*=\s*[\"'']1920x1080@60[\"'']') | select('search', 'position\s*=\s*[\"'']2560x0[\"'']') | select('search', 'scale\s*=\s*1(?:\s*[,}])') | list }}
+
+- name: Reject conflicting native monitor rules
+  ansible.builtin.assert:
+    that:
+      - omarchy_hdmi_blocks | length <= 1
+      - omarchy_dp3_blocks | length <= 1
+      - omarchy_hdmi_blocks | length == omarchy_hdmi_matching_blocks | length
+      - omarchy_dp3_blocks | length == omarchy_dp3_matching_blocks | length
+    fail_msg: native monitor rule conflicts with the approved Omarchy overlay
+
+- name: Add or update only the Omarchy monitor overlay block when needed
+  ansible.builtin.blockinfile:
+    path: "{{ omarchy_hypr_monitors_target }}"
+    marker: "-- {mark} DOTFILES OMARCHY MONITORS"
+    insertafter: EOF
+    block: "{{ lookup('ansible.builtin.file', omarchy_hypr_monitors_overlay_source) }}"
+  when: >-
+    (omarchy_hdmi_matching_blocks | length != 1) or
+    (omarchy_dp3_matching_blocks | length != 1)
+
+- name: Inspect native Omarchy bindings file
+  ansible.builtin.stat:
+    path: "{{ omarchy_hypr_bindings_target }}"
+    follow: false
+  register: omarchy_bindings_state
+
+- name: Require the native bindings file to remain a regular file
+  ansible.builtin.assert:
+    that:
+      - omarchy_bindings_state.stat.exists | default(false)
+      - omarchy_bindings_state.stat.isreg | default(false)
+      - not (omarchy_bindings_state.stat.islnk | default(false))
+    fail_msg: native Omarchy bindings.lua must remain an existing regular file
+
+- name: Read native Omarchy bindings file
+  ansible.builtin.set_fact:
+    omarchy_bindings_content: "{{ lookup('ansible.builtin.file', omarchy_hypr_bindings_target) }}"
+
+- name: Remove only the managed binding block from conflict analysis
+  ansible.builtin.set_fact:
+    omarchy_bindings_unmanaged_content: >-
+      {{ omarchy_bindings_content | regex_replace('(?ms)^-- BEGIN DOTFILES OMARCHY BINDINGS\n.*?^-- END DOTFILES OMARCHY BINDINGS\n?', '') }}
+
+- name: Reject an unowned DP-3 binding conflict
+  ansible.builtin.assert:
+    that:
+      - >-
+        not (omarchy_bindings_unmanaged_content is search('(?m)^[ \t]*(?:o|hl)\.bind[ \t]*\([ \t]*[\"'']SUPER[ \t]*\+[ \t]*CTRL[ \t]*\+[ \t]*M[\"'']'))
+    fail_msg: SUPER+CTRL+M is already claimed by the native/user bindings
+
+- name: Add or update only the approved DP-3 binding block
+  ansible.builtin.blockinfile:
+    path: "{{ omarchy_hypr_bindings_target }}"
+    marker: "-- {mark} DOTFILES OMARCHY BINDINGS"
+    insertafter: EOF
+    block: "{{ lookup('ansible.builtin.file', omarchy_hypr_bindings_overlay_source) }}"

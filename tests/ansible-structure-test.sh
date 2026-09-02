@@ -44,6 +44,20 @@ for path in \
     docs/decisions/development-and-gaming-scope.md \
     docs/package-inventory-arch.md \
     ansible/roles/platform_arch/tasks/main.yml \
+    ansible/profiles/omarchy.yml \
+    ansible/playbooks/omarchy.yml \
+    ansible/roles/omarchy_hypr_overrides/defaults/main.yml \
+    ansible/roles/omarchy_hypr_overrides/tasks/main.yml \
+    ansible/roles/omarchy_development/defaults/main.yml \
+    ansible/roles/omarchy_development/tasks/main.yml \
+    config/user/omarchy/hypr/monitors.overlay.lua \
+    config/user/omarchy/hypr/bindings.overlay.lua \
+    config/user/omarchy/bin/dotfiles-toggle-dp3 \
+    config/user/mise/conf.d/omarchy-development.toml \
+    tests/fixtures/omarchy-overrides.yml \
+    tests/omarchy-profile-test.sh \
+    tests/omarchy-toggle-test.sh \
+    tests/omarchy-overlay-policy-test.sh \
     ansible/roles/packages/defaults/main.yml \
     ansible/roles/packages/tasks/main.yml \
     ansible/roles/packages/tasks/backend_arch.yml \
@@ -65,4 +79,4 @@ done
     exit 1
 }
 
-"$root/bootstrap" --help | grep -F 'desktop|desktop-noctalia|dev' >/dev/null
+"$root/bootstrap" --help | grep -F 'desktop|desktop-noctalia|dev|omarchy' >/dev/null

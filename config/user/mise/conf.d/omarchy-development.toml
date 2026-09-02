@@ -1,0 +1,4 @@
+# DOTFILES MANAGED: omarchy
+[tools]
+dotnet = ["8", "9", "latest"]
+python = "latest"
