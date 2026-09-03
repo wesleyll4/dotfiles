@@ -1,0 +1,7 @@
+---
+omarchy_storage_tuning_limine_config: /etc/default/limine
+omarchy_storage_tuning_limine_update: /usr/bin/limine-update
+omarchy_storage_tuning_encrypt_hook: /usr/lib/initcpio/hooks/encrypt
+omarchy_storage_tuning_fstrim_unit: fstrim.timer
+omarchy_storage_tuning_manage_fstrim: true
+omarchy_storage_tuning_become: true

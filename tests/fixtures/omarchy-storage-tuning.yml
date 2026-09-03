@@ -1,0 +1,11 @@
+---
+- name: Exercise Omarchy storage tuning role
+  hosts: local
+  gather_facts: false
+  become: "{{ omarchy_storage_tuning_become | default(false) }}"
+  vars:
+    omarchy_storage_tuning_manage_fstrim: false
+  tasks:
+    - name: Include Omarchy storage tuning role
+      ansible.builtin.include_role:
+        name: omarchy_storage_tuning

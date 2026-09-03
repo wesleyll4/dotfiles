@@ -1,0 +1,16 @@
+---
+- name: Add approved dm-crypt options to native Limine cmdline
+  ansible.builtin.replace:
+    path: "{{ omarchy_storage_tuning_limine_config }}"
+    regexp: '(^[ \t]*KERNEL_CMDLINE\[default\]\+=["''][^"'']*?)(cryptdevice=PARTUUID=([^ \t:]+):root)(?=[ \t]|["''])([^"'']*["''][ \t]*$)'
+    replace: '\g<1>cryptdevice=PARTUUID=\g<3>:root:allow-discards,no-write-workqueue\g<4>'
+  notify: Regenerate Limine configuration
+  become: "{{ omarchy_storage_tuning_become }}"
+
+- name: Enable and start native weekly fstrim timer
+  ansible.builtin.systemd_service:
+    name: "{{ omarchy_storage_tuning_fstrim_unit }}"
+    enabled: true
+    state: started
+  become: "{{ omarchy_storage_tuning_become }}"
+  when: omarchy_storage_tuning_manage_fstrim | bool

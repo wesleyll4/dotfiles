@@ -1,0 +1,5 @@
+---
+- name: Regenerate Limine configuration
+  ansible.builtin.command:
+    argv: ["{{ omarchy_storage_tuning_limine_update }}"]
+  become: "{{ omarchy_storage_tuning_become }}"
