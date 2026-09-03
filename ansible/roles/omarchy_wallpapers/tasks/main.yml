@@ -50,3 +50,37 @@
     HOME: "{{ dotfiles_home }}"
   when: not (omarchy_wallpapers_current_state.stat.isreg | default(false) | bool)
   changed_when: true
+
+- name: Create the user systemd unit directory
+  ansible.builtin.file:
+    path: "{{ omarchy_wallpapers_systemd_user_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Materialize the Omarchy wallpaper rotation service
+  ansible.builtin.template:
+    src: wallpaper-rotation.service.j2
+    dest: "{{ omarchy_wallpapers_systemd_user_dir }}/{{ omarchy_wallpapers_rotation_service }}"
+    mode: '0644'
+  register: omarchy_wallpapers_rotation_service_unit
+
+- name: Materialize the Omarchy wallpaper rotation timer
+  ansible.builtin.template:
+    src: wallpaper-rotation.timer.j2
+    dest: "{{ omarchy_wallpapers_systemd_user_dir }}/{{ omarchy_wallpapers_rotation_timer }}"
+    mode: '0644'
+  register: omarchy_wallpapers_rotation_timer_unit
+
+- name: Reload the user systemd manager after unit changes
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    scope: user
+  when:
+    - omarchy_wallpapers_rotation_service_unit.changed or omarchy_wallpapers_rotation_timer_unit.changed
+
+- name: Enable and start the Omarchy wallpaper rotation timer
+  ansible.builtin.systemd_service:
+    name: "{{ omarchy_wallpapers_rotation_timer }}"
+    enabled: true
+    state: started
+    scope: user
