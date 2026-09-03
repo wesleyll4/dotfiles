@@ -6,6 +6,38 @@ real_home=${HOME:?}
 tmp_root=$(mktemp -d)
 trap 'rm -rf -- "$tmp_root"' EXIT
 
+mkdir -p "$tmp_root/bin"
+cat >"$tmp_root/bin/noctalia" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+printf '%s %s\n' "$#" "$*" >>"${NOCTALIA_TEST_LOG:?}"
+
+if [[ $# -eq 2 && $1 == config && $2 == validate ]]; then
+        config_file="${XDG_CONFIG_HOME:?}/noctalia/config.toml"
+        [[ -f "$config_file" ]] || {
+            printf 'Noctalia fixture config is missing: %s\n' "$config_file" >&2
+            exit 1
+        }
+        python - "$config_file" <<'PY'
+import sys
+import tomllib
+
+with open(sys.argv[1], "rb") as config:
+    tomllib.load(config)
+PY
+elif [[ $# -eq 2 && $1 == msg && $2 == --help ]]; then
+        printf '%s\n' panel-toggle clipboard control-center session
+elif [[ $# -eq 3 && $1 == msg && $2 == session && $3 == --help ]]; then
+        printf '%s\n' lock suspend logout reboot shutdown
+else
+    printf 'Unsupported fake Noctalia argv: %s\n' "$*" >&2
+    exit 2
+fi
+EOF
+chmod +x "$tmp_root/bin/noctalia"
+export NOCTALIA_TEST_LOG="$tmp_root/noctalia.log"
+
 fixture_home="$tmp_root/home"
 xdg_config="$tmp_root/xdg-config"
 xdg_state="$tmp_root/xdg-state"
@@ -36,17 +68,22 @@ XDG_CONFIG_HOME="$xdg_config" \
 XDG_STATE_HOME="$xdg_state" \
 XDG_DATA_HOME="$xdg_data" \
 XDG_CACHE_HOME="$xdg_cache" \
+PATH="$tmp_root/bin:$PATH" \
     noctalia config validate
 XDG_CONFIG_HOME="$xdg_config" \
 XDG_STATE_HOME="$xdg_state" \
 XDG_DATA_HOME="$xdg_data" \
 XDG_CACHE_HOME="$xdg_cache" \
+PATH="$tmp_root/bin:$PATH" \
     noctalia msg --help >"$tmp_root/ipc-help"
 for command_name in 'panel-toggle launcher' 'panel-toggle clipboard' 'panel-toggle control-center' 'panel-toggle session'; do
     grep -F "${command_name%% *}" "$tmp_root/ipc-help" >/dev/null
 done
-noctalia msg session --help >"$tmp_root/session-help"
+PATH="$tmp_root/bin:$PATH" noctalia msg session --help >"$tmp_root/session-help"
 grep -E 'lock|suspend|logout|reboot|shutdown' "$tmp_root/session-help" >/dev/null
+grep -Fx '2 config validate' "$NOCTALIA_TEST_LOG" >/dev/null
+grep -Fx '2 msg --help' "$NOCTALIA_TEST_LOG" >/dev/null
+grep -Fx '3 msg session --help' "$NOCTALIA_TEST_LOG" >/dev/null
 
 Hyprland --verify-config --config "$candidate/hyprland.lua" >"$tmp_root/hyprland.out" 2>&1
 grep -F 'config ok' "$tmp_root/hyprland.out" >/dev/null
