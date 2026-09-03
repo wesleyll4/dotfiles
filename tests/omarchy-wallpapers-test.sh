@@ -15,6 +15,7 @@ native_bin="$fixture/bin"
 native_log="$fixture/native.log"
 next_log="$fixture/native-next.log"
 systemctl_log="$fixture/systemctl.log"
+systemctl_state="$fixture/systemctl.state"
 systemd_user_dir="$dotfiles_home/.config/systemd/user"
 service_file="$systemd_user_dir/dotfiles-omarchy-wallpaper-rotation.service"
 timer_file="$systemd_user_dir/dotfiles-omarchy-wallpaper-rotation.timer"
@@ -23,6 +24,7 @@ mkdir -p "$source_dir" "$process_home" "$dotfiles_home" "$target_dir" "$native_b
 printf 'paper plane bytes\n' >"$source_dir/paper-plane.jpg"
 printf 'elf prison bytes\n' >"$source_dir/elf-prison.jpg"
 printf 'native shell config\n' >"$unmanaged"
+printf 'disabled\ninactive\n' >"$systemctl_state"
 
 cat >"$native_bin/omarchy-theme-bg-set" <<'EOF'
 #!/usr/bin/env bash
@@ -50,10 +52,28 @@ cat >"$native_bin/systemctl" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 printf '%s\n' "$*" >>"$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_LOG"
+enabled_state=$(sed -n '1p' "$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE")
+active_state=$(sed -n '2p' "$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE")
 case " $* " in
-    *" is-enabled "*) printf 'enabled\n' ;;
-    *" is-active "*) printf 'active\n' ;;
-    *" show "*) printf 'LoadState=loaded\nActiveState=active\n' ;;
+    *" is-enabled "*)
+        if [[ "$enabled_state" == enabled ]]; then
+            printf 'enabled\n'
+            exit 0
+        fi
+        printf 'disabled\n'
+        exit 1
+        ;;
+    *" is-active "*)
+        if [[ "$active_state" == active ]]; then
+            printf 'active\n'
+            exit 0
+        fi
+        printf 'inactive\n'
+        exit 3
+        ;;
+    *" show "*) printf 'LoadState=loaded\nActiveState=%s\n' "$active_state" ;;
+    *" enable "*) printf 'enabled\n%s\n' "$active_state" >"$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE" ;;
+    *" start "*) printf '%s\nactive\n' "$enabled_state" >"$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE" ;;
 esac
 EOF
 chmod 0755 "$native_bin/systemctl"
@@ -70,6 +90,7 @@ export DOTFILES_WALLPAPER_TEST_DEFAULT="elf-prison.jpg"
 export OMARCHY_WALLPAPER_TEST_LOG="$native_log"
 export OMARCHY_WALLPAPER_TEST_NEXT_LOG="$next_log"
 export OMARCHY_WALLPAPER_TEST_SYSTEMCTL_LOG="$systemctl_log"
+export OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE="$systemctl_state"
 export PATH="$native_bin:$PATH"
 export HOME="$process_home"
 
@@ -93,6 +114,8 @@ grep -Fx 'WantedBy=timers.target' "$timer_file" >/dev/null
 grep -F -- '--user' "$systemctl_log" >/dev/null
 grep -F -- 'enable dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log" >/dev/null
 grep -F -- 'start dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log" >/dev/null
+[[ $(grep -Fc -- 'enable dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
+[[ $(grep -Fc -- 'start dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
 [[ ! -e "$next_log" ]]
 if [[ -e "$external_state" ]]; then
     printf 'RED: native seam received process HOME instead of dotfiles_home\n' >&2
@@ -113,6 +136,8 @@ timer_checksum_before=$(sha256sum "$timer_file")
 run_role >/dev/null
 [[ "$(readlink -f -- "$state_link")" == "$(realpath -- "$target_dir/paper-plane.jpg")" ]]
 [[ $(wc -l <"$native_log") -eq $native_calls_before ]]
+[[ $(grep -Fc -- 'enable dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
+[[ $(grep -Fc -- 'start dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
 cmp -- "$fixture/unmanaged.before" "$unmanaged"
 [[ "$(sha256sum "$service_file")" == "$service_checksum_before" ]]
 [[ "$(sha256sum "$timer_file")" == "$timer_checksum_before" ]]
