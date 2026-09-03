@@ -187,6 +187,23 @@ for crypto_token_case in allow_discards_only no_write_workqueue_only unknown_cry
     }
 done
 
+reset_target
+printf '%s\n' 'KERNEL_CMDLINE[default]+="quiet cryptdevice=PARTUUID=AAA:root:allow-discards,no-write-workqueue root=/dev/mapper/root rootflags=subvol=@ rw"' >"$fixture/etc/default-limine"
+: >"$OMARCHY_STORAGE_TEST_LOG"
+if ! run_role >"$fixture/final-state.out" 2>"$fixture/final-state.err"; then
+    printf 'RED: final_state apply failed\n' >&2
+    unexpected_failures+=("final_state apply failed")
+else
+    grep -Eq 'changed=0.*failed=0|changed=0 failed=0' "$fixture/final-state.out" || {
+        printf 'RED: final_state apply was not idempotent\n' >&2
+        unexpected_failures+=("final_state apply was not idempotent")
+    }
+    [[ ! -s "$OMARCHY_STORAGE_TEST_LOG" ]] || {
+        printf 'RED: final_state apply called the fake limine-update\n' >&2
+        unexpected_failures+=("final_state apply called the fake limine-update")
+    }
+fi
+
 if ((${#unexpected_failures[@]} > 0)); then
     printf 'RED: %d negative cases did not fail closed\n' "${#unexpected_failures[@]}" >&2
     exit 1
