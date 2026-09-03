@@ -4,9 +4,10 @@ set -euo pipefail
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 profile=desktop
 check_mode=0
+ask_become_pass=0
 
 usage() {
-    printf 'usage: %s [desktop|desktop-noctalia|dev|omarchy] [--check]\n' "$0"
+    printf 'usage: %s [desktop|desktop-noctalia|dev|omarchy] [--check] [--ask-become-pass]\n' "$0"
 }
 
 while (($#)); do
@@ -16,6 +17,9 @@ while (($#)); do
             ;;
         --check)
             check_mode=1
+            ;;
+        --ask-become-pass)
+            ask_become_pass=1
             ;;
         --help|-h)
             usage
@@ -57,6 +61,7 @@ export ANSIBLE_CONFIG="$repo_root/ansible/ansible.cfg"
 playbook="$repo_root/ansible/playbooks/$profile.yml"
 command=(ansible-playbook "$playbook" -e "dotfiles_root=$repo_root" -e "dotfiles_home=$dotfiles_home")
 ((check_mode)) && command+=(--check)
+((ask_become_pass)) && command+=(--ask-become-pass)
 
 if [[ ${DOTFILES_BOOTSTRAP_DRY_RUN:-0} == 1 ]]; then
     printf 'ANSIBLE_CONFIG=%s\n' "$ANSIBLE_CONFIG"
