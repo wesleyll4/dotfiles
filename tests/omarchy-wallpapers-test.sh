@@ -191,7 +191,7 @@ fi
 [[ -e "$timer_file" ]]
 [[ "$(readlink -f -- "$state_link")" == "$(realpath -- "$target_dir/paper-plane.jpg")" ]]
 [[ $(wc -l <"$native_log") -eq $native_calls_before ]]
-grep -E '^main_desktop[[:space:]]+: ok=[0-9]+ changed=0 ' "$post_apply_check_log" >/dev/null
+grep -E '^main_desktop[[:space:]]+: ok=[0-9]+[[:space:]]+changed=0[[:space:]]' "$post_apply_check_log" >/dev/null
 [[ $(grep -Fc -- 'enable dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
 [[ $(grep -Fc -- 'start dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
 cmp -- "$fixture/unmanaged.before" "$unmanaged"
