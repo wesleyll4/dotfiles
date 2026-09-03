@@ -1,11 +1,124 @@
 ---
+- name: Inspect native Limine configuration target
+  ansible.builtin.stat:
+    path: "{{ omarchy_storage_tuning_limine_config }}"
+    follow: false
+  register: omarchy_storage_tuning_limine_config_stat
+  changed_when: false
+
+- name: Require a regular non-symlink Limine configuration target
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_limine_config_stat.stat.exists | bool
+      - omarchy_storage_tuning_limine_config_stat.stat.isreg | default(false) | bool
+      - not (omarchy_storage_tuning_limine_config_stat.stat.islnk | default(false) | bool)
+    fail_msg: "The Limine configuration must be an existing regular non-symlink file."
+
+- name: Inspect limine-update executable
+  ansible.builtin.stat:
+    path: "{{ omarchy_storage_tuning_limine_update }}"
+    follow: false
+  register: omarchy_storage_tuning_limine_update_stat
+  changed_when: false
+
+- name: Require an executable limine-update
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_limine_update_stat.stat.exists | bool
+      - omarchy_storage_tuning_limine_update_stat.stat.isreg | default(false) | bool
+      - omarchy_storage_tuning_limine_update_stat.stat.executable | default(false) | bool
+    fail_msg: "limine-update must be an existing executable regular file."
+
+- name: Inspect encrypt hook
+  ansible.builtin.stat:
+    path: "{{ omarchy_storage_tuning_encrypt_hook }}"
+    follow: false
+  register: omarchy_storage_tuning_encrypt_hook_stat
+  changed_when: false
+
+- name: Require an existing regular encrypt hook
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_encrypt_hook_stat.stat.exists | bool
+      - omarchy_storage_tuning_encrypt_hook_stat.stat.isreg | default(false) | bool
+    fail_msg: "The mkinitcpio encrypt hook must exist as a regular file."
+
+- name: Read encrypt hook support
+  ansible.builtin.slurp:
+    src: "{{ omarchy_storage_tuning_encrypt_hook }}"
+  register: omarchy_storage_tuning_encrypt_hook_content
+  changed_when: false
+
+- name: Require approved encrypt hook parsers
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_encrypt_hook_content.content | b64decode is search('allow-discards[|]discard')
+      - omarchy_storage_tuning_encrypt_hook_content.content | b64decode is search('no-write-workqueue[|]perf-no_write_workqueue')
+    fail_msg: "The encrypt hook must support allow-discards|discard and no-write-workqueue|perf-no_write_workqueue."
+
+- name: Read native Limine configuration
+  ansible.builtin.slurp:
+    src: "{{ omarchy_storage_tuning_limine_config }}"
+  register: omarchy_storage_tuning_limine_config_content
+  changed_when: false
+
+- name: Set decoded native Limine configuration content
+  ansible.builtin.set_fact:
+    omarchy_storage_tuning_content: "{{ omarchy_storage_tuning_limine_config_content.content | b64decode }}"
+  changed_when: false
+
+- name: Extract active default Limine cmdline assignments
+  ansible.builtin.set_fact:
+    omarchy_storage_tuning_default_assignments: "{{ omarchy_storage_tuning_content | regex_findall('(?m)^[ \\t]*KERNEL_CMDLINE\\[default\\]\\+=') }}"
+  changed_when: false
+
+- name: Require exactly one active default Limine cmdline assignment
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_default_assignments | length == 1
+    fail_msg: "Exactly one active KERNEL_CMDLINE[default] assignment is required."
+
+- name: Extract complete active default Limine cmdline
+  ansible.builtin.set_fact:
+    omarchy_storage_tuning_default_cmdlines: "{{ omarchy_storage_tuning_content | regex_findall('(?m)^[ \\t]*KERNEL_CMDLINE\\[default\\]\\+=[\"'']([^\"''\\n]*)[\"''][ \\t]*$') }}"
+  changed_when: false
+
+- name: Require exactly one active default Limine cmdline
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_default_cmdlines | length == 1
+    fail_msg: "Exactly one active KERNEL_CMDLINE[default] entry is required."
+
+- name: Extract cryptdevice tokens from the default cmdline
+  ansible.builtin.set_fact:
+    omarchy_storage_tuning_cryptdevice_tokens: "{{ omarchy_storage_tuning_default_cmdlines[0] | regex_findall('(?:^|[ \\t])(cryptdevice=[^ \\t]+)(?=[ \\t]|$)') }}"
+  changed_when: false
+
+- name: Require exactly one cryptdevice token
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_cryptdevice_tokens | length == 1
+    fail_msg: "Exactly one cryptdevice token is required in the default cmdline."
+
+- name: Determine current approved cryptdevice state
+  ansible.builtin.set_fact:
+    omarchy_storage_tuning_current_state: "{{ 'original' if omarchy_storage_tuning_cryptdevice_tokens[0] is match('^cryptdevice=PARTUUID=[^ \\t:]+:root$') else ('final' if omarchy_storage_tuning_cryptdevice_tokens[0] is match('^cryptdevice=PARTUUID=[^ \\t:]+:root:allow-discards,no-write-workqueue$') else 'invalid') }}"
+  changed_when: false
+
+- name: Require an approved root cryptdevice state
+  ansible.builtin.assert:
+    that:
+      - omarchy_storage_tuning_current_state in ['original', 'final']
+    fail_msg: "cryptdevice must target mapper root with exactly the approved option state."
+
 - name: Add approved dm-crypt options to native Limine cmdline
   ansible.builtin.replace:
     path: "{{ omarchy_storage_tuning_limine_config }}"
-    regexp: '(^[ \t]*KERNEL_CMDLINE\[default\]\+=["''][^"'']*?)(cryptdevice=PARTUUID=([^ \t:]+):root)(?=[ \t]|["''])([^"'']*["''][ \t]*$)'
+    regexp: '(^[ \t]*KERNEL_CMDLINE\[default\]\+=["''][^"''\n\r]*?)(cryptdevice=PARTUUID=([^ \t:]+):root)(?=[ \t]|["''])([^"''\n\r]*["''][ \t]*$)'
     replace: '\g<1>cryptdevice=PARTUUID=\g<3>:root:allow-discards,no-write-workqueue\g<4>'
   notify: Regenerate Limine configuration
   become: "{{ omarchy_storage_tuning_become }}"
+  when: omarchy_storage_tuning_current_state == 'original'
 
 - name: Enable and start native weekly fstrim timer
   ansible.builtin.systemd_service:
