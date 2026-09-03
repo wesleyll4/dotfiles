@@ -53,7 +53,7 @@ printf '%s\n' "$*" >>"$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_LOG"
 case " $* " in
     *" is-enabled "*) printf 'enabled\n' ;;
     *" is-active "*) printf 'active\n' ;;
-    *" show "*) printf 'ActiveState=active\n' ;;
+    *" show "*) printf 'LoadState=loaded\nActiveState=active\n' ;;
 esac
 EOF
 chmod 0755 "$native_bin/systemctl"
@@ -72,6 +72,11 @@ export OMARCHY_WALLPAPER_TEST_NEXT_LOG="$next_log"
 export OMARCHY_WALLPAPER_TEST_SYSTEMCTL_LOG="$systemctl_log"
 export PATH="$native_bin:$PATH"
 export HOME="$process_home"
+
+if ! "$native_bin/systemctl" --user show "$timer_file" | grep -Fx 'LoadState=loaded' >/dev/null; then
+    printf '%s\n' 'fake systemctl show contract missing LoadState=loaded' >&2
+    exit 1
+fi
 
 run_role() {
     ansible-playbook "$root/tests/fixtures/omarchy-wallpapers.yml" \
