@@ -62,6 +62,23 @@
   ansible.builtin.set_fact:
     omarchy_monitors_content: "{{ lookup('ansible.builtin.file', omarchy_hypr_monitors_target) }}"
 
+- name: Find active native GDK scale definition
+  ansible.builtin.set_fact:
+    omarchy_gdk_scale_definitions: >-
+      {{ omarchy_monitors_content | regex_findall('(?m)^[ \t]*local[ \t]+omarchy_gdk_scale[ \t]*=[ \t]*[0-9]+[ \t]*(?:--.*)?$') }}
+
+- name: Require exactly one active native GDK scale definition
+  ansible.builtin.assert:
+    that:
+      - omarchy_gdk_scale_definitions | length == 1
+    fail_msg: native Omarchy monitors.lua must contain exactly one active local omarchy_gdk_scale integer definition
+
+- name: Set the native GDK scale to 1 without taking monitors.lua ownership
+  ansible.builtin.replace:
+    path: "{{ omarchy_hypr_monitors_target }}"
+    regexp: '(^[ \t]*local[ \t]+omarchy_gdk_scale[ \t]*=[ \t]*)[0-9]+'
+    replace: '\g<1>1'
+
 - name: Remove only the managed monitor block from conflict analysis
   ansible.builtin.set_fact:
     omarchy_monitors_unmanaged_content: >-
