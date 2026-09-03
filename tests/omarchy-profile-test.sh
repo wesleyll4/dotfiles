@@ -29,6 +29,7 @@ grep -F '  - common' "$profile" >/dev/null
 grep -F '  - omarchy_hypr_overrides' "$profile" >/dev/null
 grep -F '  - omarchy_development' "$profile" >/dev/null
 grep -F '  - omarchy_foot_overrides' "$profile" >/dev/null
+grep -Fx '  - omarchy_storage_tuning' "$profile" >/dev/null
 ! grep -Eq '^  - (shell_zsh|terminal_kitty|desktop_session_current|desktop_shell_current|desktop_actions_current|development|cli_tools)$' "$profile"
 
 grep -Fx 'dotnet = ["8", "9", "latest"]' "$root/config/user/mise/conf.d/omarchy-development.toml" >/dev/null

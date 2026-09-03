@@ -2,6 +2,7 @@
 dotfiles_profile_name: omarchy
 profile_roles:
   - common
+  - omarchy_storage_tuning
   - omarchy_hypr_overrides
   - omarchy_foot_overrides
   - omarchy_development
