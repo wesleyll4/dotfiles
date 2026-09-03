@@ -5,6 +5,41 @@ repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 tmp_root=$(mktemp -d)
 trap 'rm -rf -- "$tmp_root"' EXIT
 
+mkdir -p "$tmp_root/bin"
+cat >"$tmp_root/bin/noctalia" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+printf '%s %s\n' "$#" "$*" >>"${NOCTALIA_TEST_LOG:?}"
+
+if [[ $# -eq 2 && $1 == config && $2 == validate ]]; then
+        config_file="${XDG_CONFIG_HOME:?}/noctalia/config.toml"
+        [[ -f "$config_file" ]] || {
+            printf 'Noctalia fixture config is missing: %s\n' "$config_file" >&2
+            exit 1
+        }
+        python - "$config_file" <<'PY'
+import sys
+import tomllib
+
+with open(sys.argv[1], "rb") as config:
+    tomllib.load(config)
+PY
+elif [[ $# -eq 3 && $1 == config && $2 == export && $3 == merged ]]; then
+        config_file="${XDG_CONFIG_HOME:?}/noctalia/config.toml"
+        [[ -f "$config_file" ]] || {
+            printf 'Noctalia fixture config is missing: %s\n' "$config_file" >&2
+            exit 1
+        }
+        cat "$config_file"
+else
+    printf 'Unsupported fake Noctalia argv: %s\n' "$*" >&2
+    exit 2
+fi
+EOF
+chmod +x "$tmp_root/bin/noctalia"
+export NOCTALIA_TEST_LOG="$tmp_root/noctalia.log"
+
 config_source="$repo_root/config/user/desktop-shell/noctalia/config.toml"
 shell_source="$repo_root/config/user/hypr/candidate/shell/noctalia/shell.lua"
 
@@ -32,13 +67,17 @@ XDG_CONFIG_HOME="$tmp_root/config" \
 XDG_STATE_HOME="$tmp_root/state" \
 XDG_DATA_HOME="$tmp_root/data" \
 XDG_CACHE_HOME="$tmp_root/cache" \
+PATH="$tmp_root/bin:$PATH" \
     noctalia config validate
 
 XDG_CONFIG_HOME="$tmp_root/config" \
 XDG_STATE_HOME="$tmp_root/state" \
 XDG_DATA_HOME="$tmp_root/data" \
 XDG_CACHE_HOME="$tmp_root/cache" \
+PATH="$tmp_root/bin:$PATH" \
     noctalia config export merged >"$tmp_root/merged-config.toml"
+grep -Fx '2 config validate' "$NOCTALIA_TEST_LOG" >/dev/null
+grep -Fx '3 config export merged' "$NOCTALIA_TEST_LOG" >/dev/null
 grep -F '[bar.default]' "$tmp_root/merged-config.toml" >/dev/null
 grep -F '[bar.default.monitor.DP-3]' "$tmp_root/merged-config.toml" >/dev/null
 grep -F '[bar.default.monitor.HDMI-A-1]' "$tmp_root/merged-config.toml" >/dev/null
