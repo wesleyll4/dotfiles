@@ -16,6 +16,8 @@ native_log="$fixture/native.log"
 next_log="$fixture/native-next.log"
 systemctl_log="$fixture/systemctl.log"
 systemctl_state="$fixture/systemctl.state"
+check_log="$fixture/check-run.log"
+post_apply_check_log="$fixture/post-apply-check-run.log"
 systemd_user_dir="$dotfiles_home/.config/systemd/user"
 service_file="$systemd_user_dir/dotfiles-omarchy-wallpaper-rotation.service"
 timer_file="$systemd_user_dir/dotfiles-omarchy-wallpaper-rotation.timer"
@@ -71,7 +73,13 @@ case " $* " in
         printf 'inactive\n'
         exit 3
         ;;
-    *" show "*) printf 'LoadState=loaded\nActiveState=%s\n' "$active_state" ;;
+    *" show "*)
+        if [[ -e "$OMARCHY_WALLPAPER_TEST_TIMER_FILE" ]]; then
+            printf 'LoadState=loaded\nActiveState=%s\n' "$active_state"
+        else
+            printf 'LoadState=not-found\n'
+        fi
+        ;;
     *" enable "*) printf 'enabled\n%s\n' "$active_state" >"$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE" ;;
     *" start "*) printf '%s\nactive\n' "$enabled_state" >"$OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE" ;;
 esac
@@ -91,18 +99,44 @@ export OMARCHY_WALLPAPER_TEST_LOG="$native_log"
 export OMARCHY_WALLPAPER_TEST_NEXT_LOG="$next_log"
 export OMARCHY_WALLPAPER_TEST_SYSTEMCTL_LOG="$systemctl_log"
 export OMARCHY_WALLPAPER_TEST_SYSTEMCTL_STATE="$systemctl_state"
+export OMARCHY_WALLPAPER_TEST_TIMER_FILE="$timer_file"
 export PATH="$native_bin:$PATH"
 export HOME="$process_home"
 
-if ! "$native_bin/systemctl" --user show "$timer_file" | grep -Fx 'LoadState=loaded' >/dev/null; then
-    printf '%s\n' 'fake systemctl show contract missing LoadState=loaded' >&2
+if ! "$native_bin/systemctl" --user show "$timer_file" | grep -Fx 'LoadState=not-found' >/dev/null; then
+    printf '%s\n' 'fake systemctl show contract missing LoadState=not-found' >&2
     exit 1
 fi
 
 run_role() {
     ansible-playbook "$root/tests/fixtures/omarchy-wallpapers.yml" \
-        -i "$root/ansible/inventories/local/hosts.yml"
+        -i "$root/ansible/inventories/local/hosts.yml" "$@"
 }
+
+if ! run_role --check >"$check_log" 2>&1; then
+    cat "$check_log" >&2
+    exit 1
+fi
+grep -F -- 'TASK [omarchy_wallpapers : Materialize the Omarchy wallpaper rotation service]' "$check_log" >/dev/null
+grep -F -- 'TASK [omarchy_wallpapers : Materialize the Omarchy wallpaper rotation timer]' "$check_log" >/dev/null
+grep -A1 -F -- 'TASK [omarchy_wallpapers : Materialize the Omarchy wallpaper rotation service]' "$check_log" |
+    grep -F -- 'changed: [main_desktop]' >/dev/null
+grep -A1 -F -- 'TASK [omarchy_wallpapers : Materialize the Omarchy wallpaper rotation timer]' "$check_log" |
+    grep -F -- 'changed: [main_desktop]' >/dev/null
+[[ ! -e "$service_file" ]]
+[[ ! -e "$timer_file" ]]
+if grep -F -- 'daemon-reload' "$systemctl_log" >/dev/null; then
+    printf '%s\n' 'check mode unexpectedly reloaded the user systemd manager' >&2
+    exit 1
+fi
+if grep -F -- 'enable dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log" >/dev/null; then
+    printf '%s\n' 'check mode unexpectedly enabled wallpaper timer' >&2
+    exit 1
+fi
+if grep -F -- 'start dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log" >/dev/null; then
+    printf '%s\n' 'check mode unexpectedly started wallpaper timer' >&2
+    exit 1
+fi
 
 if ! run_role >"$fixture/first-run.log" 2>&1; then
     cat "$fixture/first-run.log" >&2
@@ -145,6 +179,21 @@ cmp -- "$fixture/unmanaged.before" "$unmanaged"
 run_role >/dev/null
 [[ "$(readlink -f -- "$state_link")" == "$(realpath -- "$target_dir/paper-plane.jpg")" ]]
 [[ $(wc -l <"$native_log") -eq $native_calls_before ]]
+cmp -- "$fixture/unmanaged.before" "$unmanaged"
+[[ "$(sha256sum "$service_file")" == "$service_checksum_before" ]]
+[[ "$(sha256sum "$timer_file")" == "$timer_checksum_before" ]]
+
+if ! run_role --check >"$post_apply_check_log" 2>&1; then
+    cat "$post_apply_check_log" >&2
+    exit 1
+fi
+[[ -e "$service_file" ]]
+[[ -e "$timer_file" ]]
+[[ "$(readlink -f -- "$state_link")" == "$(realpath -- "$target_dir/paper-plane.jpg")" ]]
+[[ $(wc -l <"$native_log") -eq $native_calls_before ]]
+grep -E '^main_desktop[[:space:]]+: ok=[0-9]+ changed=0 ' "$post_apply_check_log" >/dev/null
+[[ $(grep -Fc -- 'enable dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
+[[ $(grep -Fc -- 'start dotfiles-omarchy-wallpaper-rotation.timer' "$systemctl_log") -eq 1 ]]
 cmp -- "$fixture/unmanaged.before" "$unmanaged"
 [[ "$(sha256sum "$service_file")" == "$service_checksum_before" ]]
 [[ "$(sha256sum "$timer_file")" == "$timer_checksum_before" ]]

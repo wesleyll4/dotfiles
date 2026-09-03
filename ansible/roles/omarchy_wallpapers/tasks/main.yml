@@ -78,9 +78,18 @@
   when:
     - omarchy_wallpapers_rotation_service_unit.changed or omarchy_wallpapers_rotation_timer_unit.changed
 
+- name: Inspect the wallpaper rotation timer before systemd management
+  ansible.builtin.stat:
+    path: "{{ omarchy_wallpapers_systemd_user_dir }}/{{ omarchy_wallpapers_rotation_timer }}"
+    follow: false
+  register: omarchy_wallpapers_rotation_timer_state
+  changed_when: false
+
 - name: Enable and start the Omarchy wallpaper rotation timer
   ansible.builtin.systemd_service:
     name: "{{ omarchy_wallpapers_rotation_timer }}"
     enabled: true
     state: started
     scope: user
+  when:
+    - not ansible_check_mode or (omarchy_wallpapers_rotation_timer_state.stat.exists | default(false) | bool)
