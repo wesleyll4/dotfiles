@@ -1,5 +1,6 @@
 .DS_Store
 .superpowers/
+/.worktrees/
 greetd/etc/greetd/wallpapers/
 secrets/*.local.yml
 secrets/*.vault.yml
