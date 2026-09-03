@@ -1,0 +1,52 @@
+---
+- name: Require the personal wallpaper source directory
+  ansible.builtin.stat:
+    path: "{{ omarchy_wallpapers_source }}"
+    follow: false
+  register: omarchy_wallpapers_source_state
+  changed_when: false
+
+- name: Require a personal wallpaper source directory
+  ansible.builtin.assert:
+    that:
+      - omarchy_wallpapers_source_state.stat.exists | default(false) | bool
+      - omarchy_wallpapers_source_state.stat.isdir | default(false) | bool
+    fail_msg: personal Omarchy wallpaper source directory is missing
+
+- name: Require the configured default wallpaper
+  ansible.builtin.stat:
+    path: "{{ omarchy_wallpapers_source }}/{{ omarchy_wallpapers_default }}"
+    follow: false
+  register: omarchy_wallpapers_default_state
+  changed_when: false
+
+- name: Require a regular default wallpaper file
+  ansible.builtin.assert:
+    that:
+      - omarchy_wallpapers_default_state.stat.exists | default(false) | bool
+      - omarchy_wallpapers_default_state.stat.isreg | default(false) | bool
+      - not (omarchy_wallpapers_default_state.stat.islnk | default(false) | bool)
+    fail_msg: configured default wallpaper must be a regular file
+
+- name: Materialize the personal wallpaper collection
+  ansible.builtin.copy:
+    src: "{{ omarchy_wallpapers_source }}/"
+    dest: "{{ omarchy_wallpapers_target }}/"
+    mode: '0644'
+
+- name: Inspect the native current wallpaper state
+  ansible.builtin.stat:
+    path: "{{ omarchy_wallpapers_state_link }}"
+    follow: true
+  register: omarchy_wallpapers_current_state
+  changed_when: false
+
+- name: Select the default through the native Omarchy command when needed
+  ansible.builtin.command:
+    argv:
+      - omarchy-theme-bg-set
+      - "{{ omarchy_wallpapers_target }}/{{ omarchy_wallpapers_default }}"
+  environment:
+    HOME: "{{ dotfiles_home }}"
+  when: not (omarchy_wallpapers_current_state.stat.isreg | default(false) | bool)
+  changed_when: true

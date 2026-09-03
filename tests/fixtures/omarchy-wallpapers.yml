@@ -1,0 +1,15 @@
+---
+- name: Exercise Omarchy wallpaper collection
+  hosts: local
+  gather_facts: false
+  vars:
+    dotfiles_root: "{{ lookup('env', 'DOTFILES_TEST_ROOT') }}"
+    dotfiles_home: "{{ lookup('env', 'DOTFILES_TEST_HOME') }}"
+    omarchy_wallpapers_source: "{{ lookup('env', 'DOTFILES_WALLPAPER_TEST_SOURCE') }}"
+    omarchy_wallpapers_target: "{{ lookup('env', 'DOTFILES_WALLPAPER_TEST_TARGET') }}"
+    omarchy_wallpapers_state_link: "{{ lookup('env', 'DOTFILES_WALLPAPER_TEST_STATE') }}"
+    omarchy_wallpapers_default: "{{ lookup('env', 'DOTFILES_WALLPAPER_TEST_DEFAULT') }}"
+  tasks:
+    - name: Include Omarchy wallpaper role
+      ansible.builtin.include_role:
+        name: omarchy_wallpapers

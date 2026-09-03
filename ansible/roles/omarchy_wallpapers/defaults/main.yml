@@ -1,0 +1,5 @@
+---
+omarchy_wallpapers_source: "{{ dotfiles_root }}/config/user/omarchy/wallpapers"
+omarchy_wallpapers_target: "{{ dotfiles_home }}/.config/omarchy/backgrounds/Catppuccin"
+omarchy_wallpapers_state_link: "{{ dotfiles_home }}/.local/state/omarchy/current/background"
+omarchy_wallpapers_default: elf-prison.jpg

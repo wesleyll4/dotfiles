@@ -12,6 +12,8 @@ for path in "$profile" "$playbook" \
     "$root/ansible/roles/omarchy_development/tasks/main.yml" \
     "$root/ansible/roles/omarchy_foot_overrides/defaults/main.yml" \
     "$root/ansible/roles/omarchy_foot_overrides/tasks/main.yml" \
+    "$root/ansible/roles/omarchy_wallpapers/defaults/main.yml" \
+    "$root/ansible/roles/omarchy_wallpapers/tasks/main.yml" \
     "$root/config/user/omarchy/foot/key-bindings.overlay.ini" \
     "$root/config/user/omarchy/bin/dotfiles-foot-scrollback-nvim" \
     "$root/config/user/omarchy/hypr/monitors.overlay.lua" \
@@ -30,6 +32,7 @@ grep -F '  - omarchy_hypr_overrides' "$profile" >/dev/null
 grep -F '  - omarchy_development' "$profile" >/dev/null
 grep -F '  - omarchy_foot_overrides' "$profile" >/dev/null
 grep -Fx '  - omarchy_storage_tuning' "$profile" >/dev/null
+grep -Fx '  - omarchy_wallpapers' "$profile" >/dev/null
 ! grep -Eq '^  - (shell_zsh|terminal_kitty|desktop_session_current|desktop_shell_current|desktop_actions_current|development|cli_tools)$' "$profile"
 
 grep -Fx 'dotnet = ["8", "9", "latest"]' "$root/config/user/mise/conf.d/omarchy-development.toml" >/dev/null
