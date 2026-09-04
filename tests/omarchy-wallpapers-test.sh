@@ -8,7 +8,7 @@ trap 'rm -rf -- "$fixture"' EXIT
 source_dir="$fixture/source"
 process_home="$fixture/process-home"
 dotfiles_home="$fixture/dotfiles-home"
-target_dir="$dotfiles_home/.config/omarchy/backgrounds/Catppuccin"
+target_dir="$dotfiles_home/.config/omarchy/backgrounds/catppuccin"
 state_link="$dotfiles_home/.local/state/omarchy/current/background"
 external_state="$process_home/.local/state/omarchy/current/background"
 native_bin="$fixture/bin"
